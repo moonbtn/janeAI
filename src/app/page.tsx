@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { JdHistory } from '@/lib/supabase'
 
 export default function Home() {
@@ -21,6 +21,7 @@ export default function Home() {
   const [currentJdHistoryId, setCurrentJdHistoryId] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
   const [checking, setChecking] = useState(false)
+  const refinedJdRef = useRef<HTMLDivElement>(null)
   const [notAnsweredYet, setNotAnsweredYet] = useState(false)
 
   useEffect(() => {
@@ -135,6 +136,7 @@ export default function Home() {
       if (data.refinedJd) {
         setRefinedJd(data.refinedJd)
         setChanges(data.changes ?? [])
+        setTimeout(() => refinedJdRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       } else {
         alert('Lỗi: ' + (data.error ?? 'Không rõ nguyên nhân'))
       }
@@ -369,9 +371,17 @@ export default function Home() {
                       <button
                         onClick={handleRefineJd}
                         disabled={refining}
-                        className="w-full bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                        className="w-full bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                       >
-                        {refining ? 'Đang tinh chỉnh...' : '✦ Tinh chỉnh JD từ câu trả lời'}
+                        {refining ? (
+                          <>
+                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Đang tinh chỉnh... (mất ~15s)
+                          </>
+                        ) : '✦ Tinh chỉnh JD từ câu trả lời'}
                       </button>
                     )}
                   </div>
@@ -381,7 +391,7 @@ export default function Home() {
 
             {/* Refined JD review */}
             {refinedJd && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
+              <div ref={refinedJdRef} className="mt-4 pt-4 border-t border-indigo-100">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-gray-700">JD đề xuất sau tinh chỉnh</p>
                   <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Chờ confirm</span>
