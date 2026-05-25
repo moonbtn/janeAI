@@ -127,7 +127,7 @@ export default function QuestionnaireWizard({
                 {q.type === 'open' && (
                   <textarea
                     rows={3}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none bg-white"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none bg-white"
                     value={(answers[q.id] as string) ?? ''}
                     onChange={(e) => setAnswer(q.id, e.target.value)}
                   />
