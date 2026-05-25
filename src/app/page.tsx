@@ -76,6 +76,12 @@ export default function Home() {
       setGeneratedJd(data.item.generated_jd)
       setJobTitle(data.item.job_title)
       setRawInput(data.item.raw_input)
+      setCurrentJdHistoryId(id)
+      setQuestionnaireToken(null)
+      setQuestionnaireId(null)
+      setAnswers(null)
+      setRefinedJd('')
+      setChanges([])
     }
   }
 

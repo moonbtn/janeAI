@@ -71,7 +71,8 @@ Pre-fill tất cả câu có aiPrefilled: true dựa trên thông tin trong JD.`
     })
 
     const raw = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    const parsed = JSON.parse(raw) as {
+    const cleanRaw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
+    const parsed = JSON.parse(cleanRaw) as {
       questions: Question[]
       prefilled_answers: Record<string, unknown>
     }
