@@ -1,9 +1,9 @@
-export const dynamic = 'force-dynamic'
-
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { getSupabase } from '@/lib/supabase'
 import { Question } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -73,12 +73,20 @@ Pre-fill tất cả câu có aiPrefilled: true dựa trên thông tin trong JD.`
       ],
     })
 
-    const raw = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const firstBlock = message.content[0]
+    const raw = firstBlock?.type === 'text' ? firstBlock.text : null
+    if (!raw) {
+      return NextResponse.json({ error: 'AI không trả về nội dung' }, { status: 502 })
+    }
     const cleanRaw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
     const parsed = JSON.parse(cleanRaw) as {
       jobTitle: string
       questions: Question[]
       prefilled_answers: Record<string, unknown>
+    }
+
+    if (!parsed.jobTitle || !Array.isArray(parsed.questions) || !parsed.prefilled_answers) {
+      return NextResponse.json({ error: 'AI trả về dữ liệu không hợp lệ' }, { status: 502 })
     }
 
     // Lưu JD vào jd_history trước
@@ -98,12 +106,17 @@ Pre-fill tất cả câu có aiPrefilled: true dựa trên thông tin trong JD.`
       return NextResponse.json({ error: 'Lỗi lưu JD' }, { status: 500 })
     }
 
+    if (!jdRecord?.id) {
+      console.error('jd_history insert returned no id')
+      return NextResponse.json({ error: 'Lỗi lưu JD' }, { status: 500 })
+    }
+
     // Tạo questionnaire linked với jd_history
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (getSupabase() as any)
       .from('questionnaires')
       .insert({
-        jd_history_id: jdRecord?.id ?? null,
+        jd_history_id: jdRecord.id,
         questions: parsed.questions,
         prefilled_answers: parsed.prefilled_answers,
       })
