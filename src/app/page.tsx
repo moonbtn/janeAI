@@ -35,7 +35,7 @@ export default async function LandingPage() {
                 </p>
                 <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-[1.08] text-[#1B2B6E]">
                   Welcome to Jane AI —{' '}
-                  <em>
+                  <em className="text-[#C9A23A]">
                     tuyển dụng như<br />headhunter lành nghề.
                   </em>
                 </h1>
@@ -64,7 +64,7 @@ export default async function LandingPage() {
                 />
               </div>
               <div className="absolute -bottom-4 -left-4 bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm">
-                <p className="font-[family-name:var(--font-playfair)] text-3xl font-black text-[#1B2B6E]">10+</p>
+                <p className="font-[family-name:var(--font-playfair)] text-3xl font-black text-[#C9A23A]">10+</p>
                 <p className="text-xs text-gray-500 mt-0.5">năm trong nghề</p>
               </div>
             </div>
@@ -79,7 +79,7 @@ export default async function LandingPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-tight mb-16 max-w-3xl text-[#1B2B6E]">
             Jane AI không học<br />
             từ internet —<br />
-            <em>Jane AI học từ<br />10 năm làm nghề của Jane.</em>
+            <em className="text-[#C9A23A]">Jane AI học từ<br />10 năm làm nghề của Jane.</em>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
@@ -88,7 +88,7 @@ export default async function LandingPage() {
               { stat: '4', label: 'năm Recruitment Academy', desc: 'Chương trình đào tạo recruiter từ cơ bản đến nâng cao — toàn bộ được đưa vào làm nền tảng cho Jane AI.' },
             ].map(({ stat, label, desc }) => (
               <div key={label} className="space-y-3">
-                <p className="font-[family-name:var(--font-playfair)] text-5xl font-black text-[#1B2B6E] italic">{stat}</p>
+                <p className="font-[family-name:var(--font-playfair)] text-5xl font-black text-[#C9A23A] italic">{stat}</p>
                 <p className="font-semibold text-gray-800">{label}</p>
                 <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
               </div>
@@ -110,7 +110,7 @@ export default async function LandingPage() {
             ].map(({ title, desc }) => (
               <div key={title} className="flex gap-5">
                 <div className="w-10 h-10 border border-[#D0D8F0] bg-[#EEF0FA] rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                  <div className="w-2 h-2 bg-[#4A6BB8] rounded-full" />
+                  <div className="w-2 h-2 bg-[#C9A23A] rounded-full" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
@@ -128,7 +128,7 @@ export default async function LandingPage() {
           <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-8">Bắt đầu</p>
           <h2 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl font-black leading-tight mb-6 text-[#1B2B6E]">
             Làm việc với<br />
-            <em>10 năm kinh nghiệm</em><br />
+            <em className="text-[#C9A23A]">10 năm kinh nghiệm</em><br />
             trong túi.
           </h2>
           <p className="text-gray-500 text-lg font-light mb-12 max-w-md mx-auto">
