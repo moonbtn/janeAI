@@ -27,13 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html
-        lang="vi"
-        className={`${playfair.variable} ${inter.variable} h-full antialiased`}
-      >
-        <body className="min-h-full flex flex-col bg-white text-gray-900">{children}</body>
-      </html>
-    </ClerkProvider>
+    <html
+      lang="vi"
+      className={`${playfair.variable} ${inter.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-white text-gray-900">
+        <ClerkProvider>
+          {children}
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
