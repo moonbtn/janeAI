@@ -63,7 +63,11 @@ Tạo đủ 7 nhóm theo cấu trúc:
 - Section 1 (Outcome): 3 câu — vấn đề cần giải quyết (open, aiPrefilled), urgent (yes_no, aiPrefilled), confidential (yes_no, options: ["Tuyển công khai bình thường", "Confidential — không đăng public, tuyển kín"], KHÔNG aiPrefilled — để sếp tự chọn, text câu hỏi: "Vị trí này tuyển công khai hay confidential?")
 - Section 2 (History): 2 câu — tuyển bao lâu (multiple_choice, options: ["Mới mở","1-2 tháng","3+ tháng"]), đã gặp UV chưa lý do chưa chốt (open)
 - Section 3 (Requirements): 3 câu — số năm KN (multiple_choice, options: ["1-2 năm","3+ năm","5+ năm"], aiPrefilled), tech stack (skill_matrix, aiPrefilled), tiếng Anh (multiple_choice, options: ["Đọc hiểu tài liệu kỹ thuật","Giao tiếp với khách hàng nước ngoài","Lead meeting bằng tiếng Anh"], aiPrefilled)
-- Section 4 (Culture fit): 2 câu — ứng viên phù hợp (open, text cố định: "Ứng viên như thế nào sẽ hợp với team anh/chị?", KHÔNG aiPrefilled), thêm về văn hoá team (open, KHÔNG aiPrefilled)
+- Section 4 (Culture fit): 4 câu — 3 cặp trait dạng yes_no (KHÔNG aiPrefilled, sếp tự chọn), 1 câu mở cuối:
+  + yes_no, text: "Working style", options: ["Check-in hàng ngày với sếp", "Tự xử lý, báo cáo khi cần"]
+  + yes_no, text: "Cách làm việc", options: ["Làm theo spec rõ ràng", "Tự figure out requirements"]
+  + yes_no, text: "Môi trường", options: ["Tính ổn định cao", "Pivot nhanh, chịu được chaos"]
+  + open, text: "Còn điều gì khác anh/chị muốn ở ứng viên?", KHÔNG aiPrefilled
 - Section 5 (Package): 2 câu — lương flex (yes_no, aiPrefilled), điều đặc biệt trong team (open)
 - Section 6 (Interview process): 3 câu — số vòng (multiple_choice, options: ["2 vòng","3 vòng","4+ vòng"]), có test kỹ thuật (multiple_choice, options: ["Có — take-home assignment","Có — live coding","Không test"]), lịch available (open)
 - Section 7 (USP): 3 câu — tại sao UV giỏi nên về (open), grow thế nào 1-2 năm (open), challenge pain point (open)
