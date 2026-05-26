@@ -33,9 +33,9 @@ export default async function LandingPage() {
                 <p className="text-xs font-medium text-gray-400 tracking-widest uppercase">
                   Được xây bởi Jane Nguyen · Headhunter 10 năm
                 </p>
-                <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-[1.08]">
+                <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-[1.08] text-[#1B2B6E]">
                   Welcome to Jane AI —{' '}
-                  <em className="text-[#1B2B6E]">
+                  <em>
                     tuyển dụng như<br />headhunter lành nghề.
                   </em>
                 </h1>
@@ -76,10 +76,10 @@ export default async function LandingPage() {
         {/* Training */}
         <section className="py-28 px-8 max-w-5xl mx-auto">
           <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-16">Training</p>
-          <h2 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-tight mb-16 max-w-3xl">
+          <h2 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-tight mb-16 max-w-3xl text-[#1B2B6E]">
             Jane AI không học<br />
             từ internet —<br />
-            <em className="text-[#1B2B6E]">Jane AI học từ<br />10 năm làm nghề của Jane.</em>
+            <em>Jane AI học từ<br />10 năm làm nghề của Jane.</em>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
@@ -126,9 +126,9 @@ export default async function LandingPage() {
         {/* CTA */}
         <section className="py-28 px-8 max-w-5xl mx-auto text-center">
           <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-8">Bắt đầu</p>
-          <h2 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl font-black leading-tight mb-6">
+          <h2 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl font-black leading-tight mb-6 text-[#1B2B6E]">
             Làm việc với<br />
-            <em className="text-[#1B2B6E]">10 năm kinh nghiệm</em><br />
+            <em>10 năm kinh nghiệm</em><br />
             trong túi.
           </h2>
           <p className="text-gray-500 text-lg font-light mb-12 max-w-md mx-auto">
