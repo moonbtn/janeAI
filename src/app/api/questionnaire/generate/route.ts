@@ -64,7 +64,7 @@ Trả về JSON theo đúng format sau, không thêm bất kỳ text nào khác:
   }
 }
 
-LƯU Ý QUAN TRỌNG: Câu loại skill_matrix PHẢI được pre-fill trong prefilled_answers dưới dạng array of objects: [{"skill": "Tên kỹ năng", "level": "MUST"}, ...]. KHÔNG dùng string, KHÔNG bỏ trống. Mức level chỉ dùng "MUST" hoặc "NICE".
+LƯU Ý QUAN TRỌNG: Câu loại skill_matrix PHẢI được pre-fill trong prefilled_answers dưới dạng array of objects: [{"skill": "Tên kỹ năng", "level": "MUST"}, ...]. KHÔNG dùng string, KHÔNG bỏ trống. Mức level chỉ dùng "MUST" hoặc "NICE". Chỉ chọn TỐI ĐA 5 kỹ năng quan trọng nhất từ JD — không liệt kê hết tất cả.
 
 Tạo đủ 7 nhóm theo cấu trúc:
 - Section 1 (Outcome): 3 câu — vấn đề cần giải quyết (open, aiPrefilled), urgent (yes_no, aiPrefilled), confidential (yes_no, options: ["Tuyển công khai bình thường", "Confidential — không đăng public, tuyển kín"], KHÔNG aiPrefilled — để sếp tự chọn, text câu hỏi: "Vị trí này tuyển công khai hay confidential?")
