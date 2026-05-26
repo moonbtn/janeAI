@@ -83,7 +83,9 @@ Tạo đủ 7 nhóm theo cấu trúc:
 - Section 6 (Interview process): 3 câu — số vòng (multiple_choice, options: ["2 vòng","3 vòng","4+ vòng"]), có test kỹ thuật (multiple_choice, options: ["Có — take-home assignment","Không test"]), lịch available (open)
 - Section 7 (USP): 3 câu — tại sao UV giỏi nên về (open), grow thế nào 1-2 năm (open), challenge pain point (open)
 
-Pre-fill tất cả câu có aiPrefilled: true dựa trên thông tin trong JD.`,
+Pre-fill tất cả câu có aiPrefilled: true dựa trên thông tin trong JD.
+
+QUAN TRỌNG về prefilled_answers: Phải NGẮN GỌN, tối đa 1-2 câu, viết như câu trả lời của sếp — không phải giải thích, không lặp lại câu hỏi, không nói "cần xác nhận với HM". Ví dụ đúng: "Minimum 6 năm, linh hoạt nếu background tốt". Ví dụ sai: "JD yêu cầu 8+ năm, đây là vị trí cấp cao nên cần xác nhận với hiring manager..."`,
         },
       ],
     })
