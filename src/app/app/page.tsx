@@ -218,7 +218,7 @@ export default function Home() {
             </svg>
             Lịch sử ({history.length})
           </button>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
           </div>
         </div>
       </header>
