@@ -27,7 +27,7 @@ Return JSON in exactly this format, no additional text:
       "id": "outcome_1",
       "section": 1,
       "sectionLabel": "Outcome of the job",
-      "text": "What problem does this role solve?",
+      "text": "How did this role come about?",
       "type": "open",
       "aiPrefilled": true
     },
@@ -55,7 +55,7 @@ Return JSON in exactly this format, no additional text:
 IMPORTANT — skill_matrix type: prefilled_answers for skill_matrix MUST be an array of objects: [{"skill": "Skill name", "level": "MUST"}, ...]. Do NOT use strings, do NOT leave empty. Level must be "MUST" or "NICE" only. Pick at most 5 most important skills from the JD.
 
 Create all 7 sections as follows:
-- Section 1 (Outcome): 3 questions — problem solved (open, aiPrefilled), urgency (yes_no, aiPrefilled), confidential (yes_no, options: ["Open recruitment — public posting", "Confidential — no public posting"], NOT aiPrefilled, question text: "Is this a public or confidential search?")
+- Section 1 (Outcome): 3 questions — role origin/how it came about (open, aiPrefilled, fixed text: "How did this role come about?"), urgency (yes_no, aiPrefilled), confidential (yes_no, options: ["Open recruitment — public posting", "Confidential — no public posting"], NOT aiPrefilled, question text: "Is this a public or confidential search?")
 - Section 2 (History): 2 questions — how long has the search been ongoing (multiple_choice, options: ["Brand new role","1-2 months","3+ months"]), have candidates been interviewed and why not hired yet (open)
 - Section 3 (Requirements): 2-3 questions depending on JD:
   + open, aiPrefilled: "The JD states [X] years of experience — how flexible is that? What is the real minimum?" (replace [X] with actual number from JD, pre-fill with a comment based on JD context)
