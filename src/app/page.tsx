@@ -57,7 +57,7 @@ export default async function LandingPage() {
                 <div className="flex items-center gap-6">
                   <Image src="/logo-oac.png" alt="One Arrow Consulting" width={225} height={225} className="w-24 h-24 object-contain" />
                   <Image src="/logo-recruitment-academy.png" alt="Recruitment Academy by OAC" width={225} height={225} className="w-24 h-24 object-contain" />
-                  <Image src="/logo-harari.png" alt="Harari.ai" width={153} height={80} className="h-24 w-auto object-contain" />
+                  <Image src="/logo-harari.png" alt="Harari.ai" width={153} height={80} className="h-12 w-auto object-contain" />
                 </div>
               </div>
             </div>
