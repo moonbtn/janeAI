@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { UserButton } from '@clerk/nextjs'
 import { JdHistory } from '@/lib/supabase'
+import FeedbackWidget from '@/components/FeedbackWidget'
 
 export default function Home() {
   // Primary state
@@ -27,6 +28,8 @@ export default function Home() {
   const [refinedJd, setRefinedJd] = useState('')
   const [changes, setChanges] = useState<string[]>([])
   const [generatingQ, setGeneratingQ] = useState(false)
+  const [questionnaireLanguage, setQuestionnaireLanguage] = useState<'vi' | 'en'>('vi')
+  const [generatedLanguage, setGeneratedLanguage] = useState<'vi' | 'en'>('vi')
   const [refining, setRefining] = useState(false)
   const [checking, setChecking] = useState(false)
   const [notAnsweredYet, setNotAnsweredYet] = useState(false)
@@ -115,12 +118,13 @@ export default function Home() {
       const res = await fetch('/api/questionnaire/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jdText: pastedJd, jobTitle: pastedTitle.trim() || undefined }),
+        body: JSON.stringify({ jdText: pastedJd, jobTitle: pastedTitle.trim() || undefined, language: questionnaireLanguage }),
       })
       const data = await res.json()
       if (data.token) {
         setQuestionnaireToken(data.token)
         setQuestionnaireId(data.id)
+        setGeneratedLanguage(questionnaireLanguage)
         fetchHistory()
       } else {
         alert('Có lỗi khi tạo bảng hỏi: ' + (data.error ?? ''))
@@ -185,6 +189,7 @@ export default function Home() {
     new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50">
       {/* Toast */}
       {showRefinedToast && (
@@ -284,6 +289,21 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <div className="flex gap-2">
+            {(['vi', 'en'] as const).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setQuestionnaireLanguage(lang)}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                  questionnaireLanguage === lang
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                }`}
+              >
+                {lang === 'vi' ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleCreateQuestionnaire}
             disabled={generatingQ || !pastedJd.trim()}
@@ -376,6 +396,13 @@ export default function Home() {
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 <p className="text-sm font-medium text-gray-700">Bảng hỏi đã tạo xong</p>
+                <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  generatedLanguage === 'en'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {generatedLanguage === 'en' ? '🇬🇧 EN' : '🇻🇳 VN'}
+                </span>
               </div>
               <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
                 <span className="text-xs text-indigo-700 flex-1 truncate">
@@ -488,5 +515,7 @@ export default function Home() {
         )}
       </div>
     </div>
+    <FeedbackWidget />
+    </>
   )
 }
