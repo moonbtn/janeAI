@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { UserButton } from '@clerk/nextjs'
 import { JdHistory } from '@/lib/supabase'
 import FeedbackWidget from '@/components/FeedbackWidget'
 import PostingCard from '@/components/PostingCard'
+import QuestionnaireSummary from '@/components/QuestionnaireSummary'
+import type { QuestionnaireSummaryData } from '@/components/QuestionnaireSummary'
 
 export default function Home() {
   // Primary state
@@ -25,24 +27,17 @@ export default function Home() {
   // Questionnaire flow
   const [questionnaireToken, setQuestionnaireToken] = useState<string | null>(null)
   const [questionnaireId, setQuestionnaireId] = useState<string | null>(null)
-  const [answers, setAnswers] = useState<Record<string, unknown> | null>(null)
-  const [refinedJd, setRefinedJd] = useState('')
-  const [changes, setChanges] = useState<string[]>([])
   const [generatingQ, setGeneratingQ] = useState(false)
   const [questionnaireLanguage, setQuestionnaireLanguage] = useState<'vi' | 'en'>('vi')
   const [generatedLanguage, setGeneratedLanguage] = useState<'vi' | 'en'>('vi')
-  const [refining, setRefining] = useState(false)
-  const [checking, setChecking] = useState(false)
   const [activeJdHistoryId, setActiveJdHistoryId] = useState<string | null>(null)
   const [postingJdId, setPostingJdId] = useState<string | null>(null)
-  const [notAnsweredYet, setNotAnsweredYet] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
-  const [showRefinedToast, setShowRefinedToast] = useState(false)
+  const [showAnswersReadyToast, setShowAnswersReadyToast] = useState(false)
+  const [answersData, setAnswersData] = useState<QuestionnaireSummaryData | null>(null)
 
   const [fetchingUrl, setFetchingUrl] = useState(false)
   const [urlError, setUrlError] = useState('')
-
-  const refinedJdRef = useRef<HTMLDivElement>(null)
 
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
@@ -100,6 +95,30 @@ export default function Home() {
     }
   }, [])
 
+  // Auto-poll: notify recruiter when HM submits answers
+  useEffect(() => {
+    if (!questionnaireId || answersData) return
+
+    async function checkAnswers() {
+      try {
+        const res = await fetch(`/api/questionnaire/${questionnaireId}/summary`)
+        if (res.ok) {
+          const data = await res.json() as QuestionnaireSummaryData
+          setAnswersData(data)
+          setShowAnswersReadyToast(true)
+          setTimeout(() => setShowAnswersReadyToast(false), 8000)
+        }
+      } catch {
+        // silent — don't interrupt the recruiter
+      }
+    }
+
+    // Check immediately on mount, then every 30s
+    checkAnswers()
+    const interval = setInterval(checkAnswers, 30000)
+    return () => clearInterval(interval)
+  }, [questionnaireId, answersData])
+
   async function handleHistoryClick(id: string) {
     try {
       const res = await fetch(`/api/history/${id}`)
@@ -111,10 +130,7 @@ export default function Home() {
         setRawInput(data.item.raw_input ?? '')
         setQuestionnaireToken(null)
         setQuestionnaireId(null)
-        setAnswers(null)
-        setRefinedJd('')
-        setChanges([])
-        setNotAnsweredYet(false)
+        setAnswersData(null)
         setShowHistory(false)
       }
     } catch {
@@ -156,10 +172,7 @@ export default function Home() {
     setGeneratingQ(true)
     setQuestionnaireToken(null)
     setQuestionnaireId(null)
-    setAnswers(null)
-    setRefinedJd('')
-    setChanges([])
-    setNotAnsweredYet(false)
+    setAnswersData(null)
     try {
       const res = await fetch('/api/questionnaire/generate', {
         method: 'POST',
@@ -183,69 +196,17 @@ export default function Home() {
     }
   }
 
-  async function handleCheckAnswers() {
-    if (!questionnaireId) return
-    setChecking(true)
-    setNotAnsweredYet(false)
-    try {
-      const res = await fetch(`/api/questionnaire/${questionnaireId}/answers`)
-      const data = await res.json()
-      if (data.answers) {
-        setAnswers(data.answers)
-      } else {
-        setNotAnsweredYet(true)
-      }
-    } catch {
-      alert('Không kết nối được, thử lại nhé!')
-    } finally {
-      setChecking(false)
-    }
-  }
-
-  async function handleRefineJd() {
-    if (!questionnaireId) return
-    setRefining(true)
-    try {
-      const res = await fetch(`/api/questionnaire/${questionnaireId}/refine-jd`, { method: 'POST' })
-      const data = await res.json()
-      if (data.refinedJd) {
-        setRefinedJd(data.refinedJd)
-        setChanges(data.changes ?? [])
-        setShowRefinedToast(true)
-        setTimeout(() => setShowRefinedToast(false), 4000)
-        setTimeout(() => refinedJdRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
-      } else {
-        alert('Lỗi: ' + (data.error ?? 'Không rõ nguyên nhân'))
-      }
-    } catch (e) {
-      console.error('Refine error:', e)
-      alert('Không kết nối được server, thử lại nhé!')
-    } finally {
-      setRefining(false)
-    }
-  }
-
-  function handleConfirmRefinedJd() {
-    setPastedJd(refinedJd)
-    setRefinedJd('')
-    setChanges([])
-    fetchHistory()
-    if (activeJdHistoryId) setPostingJdId(activeJdHistoryId)
-  }
-
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
     <>
     <div className="min-h-screen bg-gray-50">
-      {/* Toast */}
-      {showRefinedToast && (
+      {/* Answers ready banner */}
+      {showAnswersReadyToast && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-xl shadow-lg">
-          <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <span className="text-sm font-semibold">JD đã tinh chỉnh xong! Xem bên dưới 👇</span>
+          <span className="text-lg">🎉</span>
+          <span className="text-sm font-semibold">Sếp vừa điền xong! Xem answers bên dưới ↓</span>
         </div>
       )}
 
@@ -504,85 +465,24 @@ export default function Home() {
               <p className="text-xs text-gray-400 mt-1.5">Gửi link này cho sếp qua Zalo/email — không cần đăng nhập</p>
             </div>
 
-            {/* Answers check */}
-            {!answers ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
-                <button
-                  onClick={handleCheckAnswers}
-                  disabled={checking}
-                  className="w-full border border-indigo-200 text-indigo-600 rounded-xl py-2.5 text-sm hover:bg-indigo-50 transition-colors disabled:opacity-60"
-                >
-                  {checking ? 'Đang kiểm tra...' : 'Kiểm tra sếp đã điền chưa'}
-                </button>
-                {notAnsweredYet && (
-                  <p className="text-xs text-center text-amber-600 bg-amber-50 rounded-lg py-1.5">
-                    Sếp chưa điền, gửi link nhắc sếp nhé 😅
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-green-200 p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-semibold text-green-800">Sếp đã điền xong!</p>
-                </div>
-                <button
-                  onClick={handleRefineJd}
-                  disabled={refining}
-                  className="w-full bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  {refining ? (
-                    <>
-                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Đang tinh chỉnh... (~15s)
-                    </>
-                  ) : '✦ Tinh chỉnh JD từ câu trả lời'}
-                </button>
+            {/* Waiting for HM */}
+            {!answersData && (
+              <div className="bg-gray-50 rounded-xl border border-gray-100 px-4 py-3">
+                <p className="text-xs text-gray-400 text-center">
+                  Đang chờ sếp điền bảng hỏi... (Jane sẽ tự báo khi sếp xong)
+                </p>
               </div>
             )}
+          </div>
+        )}
 
-            {/* Refined JD */}
-            {refinedJd && (
-              <div ref={refinedJdRef} className="bg-white rounded-xl border border-indigo-100 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-700">JD đề xuất sau tinh chỉnh</p>
-                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Chờ confirm</span>
-                </div>
-                {changes.length > 0 && (
-                  <ul className="space-y-1">
-                    {changes.map((c, i) => (
-                      <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
-                        <span className="text-green-500 mt-0.5 shrink-0">↑</span>{c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-4 max-h-60 overflow-y-auto">
-                  {refinedJd}
-                </pre>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => { setRefinedJd(''); setChanges([]) }}
-                    className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2 text-sm hover:bg-gray-50"
-                  >
-                    Bỏ qua
-                  </button>
-                  <button
-                    onClick={handleConfirmRefinedJd}
-                    className="flex-1 bg-green-600 text-white rounded-xl py-2 text-sm font-semibold hover:bg-green-700"
-                  >
-                    Xác nhận JD mới
-                  </button>
-                </div>
-              </div>
-            )}
+        {/* Questionnaire Summary */}
+        {answersData && !postingJdId && (
+          <div className="max-w-2xl mx-auto">
+            <QuestionnaireSummary
+              data={answersData}
+              onPost={() => { if (activeJdHistoryId) setPostingJdId(activeJdHistoryId) }}
+            />
           </div>
         )}
 
