@@ -1,0 +1,15 @@
+{"type":"server-started","port":62352,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:62352","screen_dir":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content","state_dir":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/state"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/channels-scope.html"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/feature-scope.html"}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890277413}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890277611}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890278945}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890292180}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890292331}
+{"source":"user-event","type":"click","text":"C\n    \n      A + Direct posting (nếu có account)\n      Jane connect vào LinkedIn / TopCV / Facebook qua OAuth → post thẳng luôn khi rec bấm nút. Phức tạp hơn nhiều về tech, nhưng xịn nhất.","choice":"C","id":null,"timestamp":1779890293329}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/platform-priority.html"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/approaches.html"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/design-ux-flow.html"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/design-full.html"}
+{"type":"screen-added","file":"/Users/Macbook/Claude Code/jane-ai/.superpowers/brainstorm/67398-1779889533/content/design-tech.html"}
+{"type":"server-stopped","reason":"idle timeout"}

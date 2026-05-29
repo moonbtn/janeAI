@@ -1,18 +1,19 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
 
-const ADMIN_IDS = (process.env.ADMIN_USER_IDS ?? '').split(',').filter(Boolean)
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim()).filter(Boolean)
 
 export async function GET() {
-  const { userId } = await auth()
-  if (!userId) {
+  const user = await currentUser()
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const isAdmin = ADMIN_IDS.includes(userId)
+  const userEmails = user.emailAddresses.map((e) => e.emailAddress)
+  const isAdmin = ADMIN_EMAILS.some((adminEmail) => userEmails.includes(adminEmail))
 
   const query = getSupabase()
     .from('jd_history')
@@ -20,7 +21,7 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  if (!isAdmin) query.eq('user_id', userId)
+  if (!isAdmin) query.eq('user_id', user.id)
 
   const { data, error } = await query
 

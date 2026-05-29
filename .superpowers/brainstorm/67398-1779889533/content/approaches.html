@@ -1,0 +1,47 @@
+<h2>3 cách build feature này</h2>
+<p class="subtitle">Chọn approach phù hợp với timeline và độ phức tạp bạn chấp nhận được</p>
+
+<div class="options">
+  <div class="option" data-choice="A" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Content Generator Only (không OAuth)</h3>
+      <p><strong>Build time: ~3–5 ngày.</strong> Jane phân tích JD → gợi ý kênh phù hợp → generate sẵn nội dung cho LinkedIn / Facebook Group / Threads / Job boards → rec copy-paste tự đăng. Không cần connect account. Nhanh ship, zero risk về API.</p>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+        <span style="background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Nhanh nhất</span>
+        <span style="background:#fee2e2;color:#dc2626;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Rec vẫn phải tự đăng</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="B" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;">B ✦</div>
+    <div class="content">
+      <h3>Content Generator + OAuth Phased (Recommended)</h3>
+      <p><strong>V1 (~1 tuần): </strong>Content gen + LinkedIn OAuth post-as-status + Facebook Page/Group OAuth. <strong>V2 (~sau đó): </strong>Threads API + Job boards (TopCV free 3 posts). LinkedIn post dưới dạng status bình thường — không cần LinkedIn Talent partner, rec vẫn dùng được ngay.</p>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+        <span style="background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Ship được sớm</span>
+        <span style="background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Direct post cho kênh quan trọng nhất</span>
+        <span style="background:#fef9c3;color:#a16207;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">LinkedIn = status, không phải job listing</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="C" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full Platform Suite ngay từ đầu</h3>
+      <p><strong>Build time: 3–4 tuần.</strong> LinkedIn + Facebook + Threads + TopCV browser automation (Playwright) cùng lúc. Token management, error handling, re-auth flow cho tất cả. Xịn nhất nhưng risk cao — mỗi platform có thể break độc lập.</p>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+        <span style="background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Đầy đủ nhất</span>
+        <span style="background:#fee2e2;color:#dc2626;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Ship chậm</span>
+        <span style="background:#fee2e2;color:#dc2626;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;">Browser automation fragile</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:20px;background:#f0f4ff;border-radius:12px;padding:16px;">
+  <p class="label">💡 Note về LinkedIn API</p>
+  <p style="font-size:13px;color:#555;margin-top:6px;">LinkedIn <strong>Job Posting API chính thức</strong> cần partner program (rất khó xin). Nhưng <strong>Share API</strong> (post status bình thường) thì dễ — rec connect LinkedIn → Jane post "đang tuyển [vị trí]..." như một status trên feed của họ. Thực tế đây là cách rec VN hay làm nhất rồi.</p>
+</div>

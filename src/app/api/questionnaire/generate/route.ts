@@ -6,8 +6,6 @@ import { Question } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
 function buildPrompt(jdText: string, providedTitle: string | undefined, language: 'vi' | 'en'): string {
   if (language === 'en') {
     return `You are a recruitment expert. Based on the following JD, please:
@@ -161,6 +159,8 @@ export async function POST(req: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   try {
     const { jdText, jobTitle: providedTitle, language = 'vi' } = await req.json() as {

@@ -1,0 +1,169 @@
+<h2>Design: Technical Architecture</h2>
+<p class="subtitle">Channel logic · Content generation · OAuth · Data model · API routes</p>
+
+<!-- Channel Recommendation Logic -->
+<div class="section">
+  <h3>1. Channel Recommendation Logic</h3>
+  <p style="font-size:13px;color:#555;margin:4px 0 10px;">Jane phân tích JD text → classify job type → map sang kênh phù hợp</p>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:#eef2ff;">
+          <th style="padding:8px;text-align:left;border-radius:8px 0 0 0;">Job type</th>
+          <th style="padding:8px;text-align:center;">LinkedIn</th>
+          <th style="padding:8px;text-align:center;">FB Group</th>
+          <th style="padding:8px;text-align:center;">Threads</th>
+          <th style="padding:8px;text-align:center;">TopCV</th>
+          <th style="padding:8px;text-align:center;border-radius:0 8px 0 0;">YBOX</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:8px;font-weight:600;color:#374151;">Tech (Dev/Data/Design)</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★☆☆</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;background:#fafafa;">
+          <td style="padding:8px;font-weight:600;color:#374151;">Business/Sales/BD</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★☆☆</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:8px;font-weight:600;color:#374151;">Marketing/Creative</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★☆☆</td>
+        </tr>
+        <tr style="background:#fafafa;">
+          <td style="padding:8px;font-weight:600;color:#374151;">Fresher/Intern</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★☆</td>
+          <td style="padding:8px;text-align:center;">★★★</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:#9ca3af;margin:6px 0 0;">Logic này được encode vào system prompt của Jane — Claude classify job type rồi return ranked channels + reasoning ngắn gọn.</p>
+</div>
+
+<!-- Content Generation -->
+<div class="section">
+  <h3>2. Content Generation (từ framework slide R101)</h3>
+  <div style="display:grid;gap:8px;">
+    <div style="background:#f8f7ff;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#6366f1;margin:0 0 6px;">💼 LinkedIn — Formal, 150–250 từ</p>
+      <p style="font-size:12px;color:#555;margin:0;">Header (job title + company highlight) → Preview 2 câu hook → Main (bullet: công việc, yêu cầu, quyền lợi) → CTA (link apply hoặc DM). Tone: chuyên nghiệp, dùng emoji chừng mực.</p>
+    </div>
+    <div style="background:#eff6ff;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#1d4ed8;margin:0 0 6px;">📘 Facebook Group — Friendly, 80–150 từ</p>
+      <p style="font-size:12px;color:#555;margin:0;">Hook 1–2 câu đầu mạnh (3s rule — chỉ show 125 ký tự), tone thân thiện như người thật đang seeding, ít bullet hơn, emoji nhiều hơn, CTA rõ.</p>
+    </div>
+    <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#111;margin:0 0 6px;">🧵 Threads — Punchy, max 500 ký tự</p>
+      <p style="font-size:12px;color:#555;margin:0;">1 câu hook + 3 bullet siêu ngắn + CTA. Không dùng ảnh. Đủ để ai đó stop scroll và DM.</p>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#15803d;margin:0 0 6px;">📄 TopCV/VietnamWorks — Full JD format</p>
+      <p style="font-size:12px;color:#555;margin:0;">Re-export JD đã có sẵn theo format chuẩn job board. Jane chỉ reformat, không generate lại. Content-only, user tự paste.</p>
+    </div>
+  </div>
+  <p style="font-size:11px;color:#9ca3af;margin:8px 0 0;">Tất cả content editable trước khi post. API: <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;">POST /api/post-job/generate</code> — nhận JD + job_type → trả về object {linkedin, facebook, threads, topcv}.</p>
+</div>
+
+<!-- OAuth Flow -->
+<div class="section">
+  <h3>3. OAuth Integration</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div style="background:#f8f7ff;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#6366f1;margin:0 0 6px;">LinkedIn OAuth 2.0</p>
+      <ul style="font-size:12px;color:#555;margin:0;padding-left:16px;line-height:1.8;">
+        <li>Scope: <code style="background:#f3f4f6;padding:0 3px;border-radius:2px;">w_member_social</code></li>
+        <li>Post as status/share (không cần Talent partner)</li>
+        <li>Token lưu Supabase (encrypted), refresh tự động</li>
+      </ul>
+    </div>
+    <div style="background:#eff6ff;border-radius:10px;padding:12px;">
+      <p style="font-size:12px;font-weight:700;color:#1d4ed8;margin:0 0 6px;">Facebook Graph API</p>
+      <ul style="font-size:12px;color:#555;margin:0;padding-left:16px;line-height:1.8;">
+        <li>Scope: <code style="background:#f3f4f6;padding:0 3px;border-radius:2px;">pages_manage_posts</code> + <code style="background:#f3f4f6;padding:0 3px;border-radius:2px;">groups_access_member_info</code></li>
+        <li>Rec chọn Page/Group nào muốn post</li>
+        <li>Token long-lived (60 ngày), auto-refresh</li>
+      </ul>
+    </div>
+  </div>
+  <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-top:8px;">
+    <p style="font-size:12px;font-weight:700;color:#111;margin:0 0 4px;">🧵 Threads API (Meta)</p>
+    <p style="font-size:12px;color:#555;margin:0;">Dùng Threads Publishing API (released 2024). Scope: <code style="background:#f3f4f6;padding:0 3px;border-radius:2px;">threads_basic</code> + <code style="background:#f3f4f6;padding:0 3px;border-radius:2px;">threads_content_publish</code>. Cùng app Facebook → add thêm scope, không cần app riêng.</p>
+  </div>
+</div>
+
+<!-- Data Model -->
+<div class="section">
+  <h3>4. Data Model</h3>
+  <div style="background:#1e1e2e;border-radius:10px;padding:14px;font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.7;">
+    <span style="color:#89b4fa;">-- Bảng mới: post_campaigns</span><br>
+    <span style="color:#a6e3a1;">post_campaigns</span> {<br>
+    &nbsp;&nbsp;id uuid PK<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">jd_history_id</span> uuid → jd_history.id<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">channel</span> text <span style="color:#6c7086;">-- 'linkedin'|'facebook'|'threads'|'topcv'</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">content</span> text <span style="color:#6c7086;">-- generated content (editable)</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">status</span> text <span style="color:#6c7086;">-- 'draft'|'posted'|'failed'</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">platform_post_id</span> text <span style="color:#6c7086;">-- ID trả về từ platform</span><br>
+    &nbsp;&nbsp;posted_at timestamptz<br>
+    &nbsp;&nbsp;created_at timestamptz<br>
+    }<br><br>
+    <span style="color:#89b4fa;">-- Bảng mới: connected_accounts</span><br>
+    <span style="color:#a6e3a1;">connected_accounts</span> {<br>
+    &nbsp;&nbsp;id uuid PK<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">user_id</span> text <span style="color:#6c7086;">-- Clerk user ID</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">platform</span> text <span style="color:#6c7086;">-- 'linkedin'|'facebook'|'threads'</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">access_token</span> text <span style="color:#6c7086;">-- encrypted</span><br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">refresh_token</span> text<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">token_expires_at</span> timestamptz<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">platform_user_id</span> text<br>
+    &nbsp;&nbsp;<span style="color:#f9e2af;">platform_user_name</span> text <span style="color:#6c7086;">-- hiển thị "Đang post với @..."</span><br>
+    &nbsp;&nbsp;created_at timestamptz<br>
+    }
+  </div>
+</div>
+
+<!-- API Routes -->
+<div class="section">
+  <h3>5. API Routes mới</h3>
+  <div style="display:grid;gap:6px;font-size:12px;">
+    <div style="background:#f0fdf4;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#16a34a;font-weight:700;white-space:nowrap;">POST</code>
+      <div><code>/api/post-job/generate</code> — nhận jd_history_id → classify job type → generate content cho 4 kênh</div>
+    </div>
+    <div style="background:#f0fdf4;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#16a34a;font-weight:700;white-space:nowrap;">POST</code>
+      <div><code>/api/post-job/publish</code> — nhận campaign_id + channel → post lên platform → update status</div>
+    </div>
+    <div style="background:#eff6ff;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#1d4ed8;font-weight:700;white-space:nowrap;">GET</code>
+      <div><code>/api/auth/[platform]/connect</code> — redirect sang OAuth flow (linkedin/facebook/threads)</div>
+    </div>
+    <div style="background:#eff6ff;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#1d4ed8;font-weight:700;white-space:nowrap;">GET</code>
+      <div><code>/api/auth/[platform]/callback</code> — nhận code → exchange token → lưu connected_accounts</div>
+    </div>
+    <div style="background:#eff6ff;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#1d4ed8;font-weight:700;white-space:nowrap;">GET</code>
+      <div><code>/api/post-job/campaigns?jd_id=</code> — lấy lịch sử đăng cho 1 JD</div>
+    </div>
+    <div style="background:#fff7ed;border-radius:8px;padding:10px;display:flex;gap:10px;">
+      <code style="color:#ea580c;font-weight:700;white-space:nowrap;">DELETE</code>
+      <div><code>/api/auth/[platform]/disconnect</code> — xóa token, ngắt kết nối account</div>
+    </div>
+  </div>
+</div>
