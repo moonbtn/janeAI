@@ -1,8 +1,31 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import type { Question } from '@/lib/supabase'
 import PrintTrigger from './PrintTrigger'
 import PrintButton from './PrintButton'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>
+}): Promise<Metadata> {
+  const { token } = await params
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: q } = await (getSupabase() as any)
+    .from('questionnaires')
+    .select('jd_history_id')
+    .eq('token', token)
+    .single()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: jd } = q ? await (getSupabase() as any)
+    .from('jd_history')
+    .select('job_title')
+    .eq('id', q.jd_history_id)
+    .single() : { data: null }
+  const jobTitle = jd?.job_title ?? 'Hiring Brief'
+  return { title: `Jane AI - ${jobTitle}` }
+}
 
 function formatSubmittedAt(iso: string): string {
   const d = new Date(iso)
@@ -95,7 +118,6 @@ export default async function SummaryPrintPage({
 
   return (
     <>
-      <title>{`Jane AI - ${jobTitle}`}</title>
       <PrintTrigger />
       <style>{`
         @media print {
