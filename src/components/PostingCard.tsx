@@ -195,6 +195,7 @@ export default function PostingCard({ jdHistoryId }: Props) {
                   onPublish={handlePublish}
                   onContentChange={handleContentChange}
                   onCampaignGenerated={(campaign) => handleCampaignGenerated(channel, campaign)}
+                  onAccountConnected={fetchAccounts}
                 />
               )
             })}

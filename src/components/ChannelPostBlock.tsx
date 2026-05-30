@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { ContentStyle, PostCampaign, ConnectedAccount } from '@/lib/supabase'
 
 type Channel = 'linkedin' | 'facebook' | 'threads' | 'topcv'
@@ -52,6 +52,7 @@ type Props = {
   onPublish: (campaignId: string) => Promise<void>
   onContentChange: (campaignId: string, content: string) => void
   onCampaignGenerated: (campaign: PostCampaign) => void
+  onAccountConnected: () => void
 }
 
 export default function ChannelPostBlock({
@@ -65,6 +66,7 @@ export default function ChannelPostBlock({
   onPublish,
   onContentChange,
   onCampaignGenerated,
+  onAccountConnected,
 }: Props) {
   const [expanded, setExpanded] = useState(defaultOpen)
   const [contentExpanded, setContentExpanded] = useState(false)
@@ -76,6 +78,29 @@ export default function ChannelPostBlock({
   )
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
+  const [connecting, setConnecting] = useState(false)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current) }, [])
+
+  function handleConnect() {
+    const popup = window.open(`/api/auth/${channel}/connect`, '_blank', 'width=600,height=700')
+    if (!popup) return
+    setConnecting(true)
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/auth/${channel}/status`)
+        const data = await res.json() as { connected: boolean }
+        if (data.connected) {
+          clearInterval(pollRef.current!)
+          pollRef.current = null
+          setConnecting(false)
+          onAccountConnected()
+          popup.close()
+        }
+      } catch { /* ignore */ }
+    }, 2000)
+  }
 
   const meta = CHANNEL_META[channel]
   const availableStyles = CHANNEL_STYLES[channel]
@@ -282,13 +307,14 @@ export default function ChannelPostBlock({
                   ) : `Post lên ${meta.label} →`}
                 </button>
               ) : (
-                <a
-                  href={`/api/auth/${channel}/connect`}
-                  className="block w-full py-2.5 text-sm font-semibold text-center rounded-lg border-2 transition-colors hover:bg-gray-50"
+                <button
+                  onClick={handleConnect}
+                  disabled={connecting}
+                  className="w-full py-2.5 text-sm font-semibold text-center rounded-lg border-2 transition-colors hover:bg-gray-50 disabled:opacity-60"
                   style={{ color: meta.color, borderColor: meta.color }}
                 >
-                  Kết nối {meta.label} →
-                </a>
+                  {connecting ? 'Đang chờ kết nối...' : `Kết nối ${meta.label} →`}
+                </button>
               )}
             </div>
           )}

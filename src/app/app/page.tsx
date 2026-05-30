@@ -489,18 +489,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* Questionnaire Summary */}
+        {/* Questionnaire Summary + Posting flow */}
         {answersData && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-3">
             <QuestionnaireSummary
               data={answersData}
+              collapsed={!!postingJdId}
               onPost={() => { if (activeJdHistoryId) setPostingJdId(activeJdHistoryId) }}
             />
+            {postingJdId && (
+              <PostingCard jdHistoryId={postingJdId} />
+            )}
           </div>
         )}
 
-        {/* Posting Card */}
-        {postingJdId && (
+        {/* Posting Card (from history, no summary context) */}
+        {!answersData && postingJdId && (
           <PostingCard jdHistoryId={postingJdId} />
         )}
       </div>

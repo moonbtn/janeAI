@@ -50,16 +50,11 @@ export type QuestionnaireAnswer = {
   submitted_at: string
 }
 
-let _adminClient: ReturnType<typeof createClient> | null = null
-
 export function getSupabaseAdmin() {
-  if (!_adminClient) {
-    _adminClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-  }
-  return _adminClient
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 }
 
 export type PostCampaign = {

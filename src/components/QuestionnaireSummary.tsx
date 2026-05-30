@@ -14,6 +14,7 @@ export type QuestionnaireSummaryData = {
 type Props = {
   data: QuestionnaireSummaryData
   onPost: () => void
+  collapsed?: boolean
 }
 
 function formatSubmittedAt(iso: string): string {
@@ -49,7 +50,7 @@ function renderAnswer(question: Question, answers: Record<string, unknown>): str
   return String(value)
 }
 
-export default function QuestionnaireSummary({ data, onPost }: Props) {
+export default function QuestionnaireSummary({ data, onPost, collapsed = false }: Props) {
   const { jobTitle, submittedAt, questions, answers, token } = data
 
   // Group questions by section
@@ -70,6 +71,26 @@ export default function QuestionnaireSummary({ data, onPost }: Props) {
     const origin = window.location.origin
     window.open(`${origin}/q/${token}/summary`, '_blank')
   }, [token])
+
+  if (collapsed) {
+    return (
+      <div className="bg-green-50 rounded-xl border border-green-200 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-green-600 text-sm">✓</span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-green-800 truncate">{jobTitle}</p>
+            <p className="text-xs text-green-600">Sếp đã điền lúc {formatSubmittedAt(submittedAt)}</p>
+          </div>
+        </div>
+        <button
+          onClick={handlePdf}
+          className="shrink-0 text-xs text-green-700 border border-green-300 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors"
+        >
+          🖨 Tải PDF
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white rounded-xl border border-green-200 overflow-hidden">

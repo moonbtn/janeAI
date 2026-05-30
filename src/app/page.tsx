@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import { SignInButton, Show } from '@clerk/nextjs'
+import { Show } from '@clerk/nextjs'
+import InAppBrowserSignIn from '@/components/InAppBrowserSignIn'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
@@ -18,11 +19,9 @@ export default async function LandingPage() {
             </div>
             <span className="font-semibold text-gray-900 text-sm tracking-tight">Jane AI</span>
           </div>
-          <SignInButton mode="modal">
-            <button className="flex items-center gap-2 bg-[#1B2B6E] text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-[#152258] transition-colors cursor-pointer">
-              Dùng thử miễn phí
-            </button>
-          </SignInButton>
+          <InAppBrowserSignIn className="flex items-center gap-2 bg-[#1B2B6E] text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-[#152258] transition-colors cursor-pointer">
+            Dùng thử miễn phí
+          </InAppBrowserSignIn>
         </nav>
 
         {/* Hero + Founder */}
@@ -44,11 +43,9 @@ export default async function LandingPage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <SignInButton mode="modal">
-                  <button className="flex items-center gap-2.5 bg-[#1B2B6E] text-white px-7 py-3.5 rounded-full font-medium hover:bg-[#152258] transition-colors cursor-pointer">
-                    Đăng nhập với Google
-                  </button>
-                </SignInButton>
+                <InAppBrowserSignIn className="flex items-center gap-2.5 bg-[#1B2B6E] text-white px-7 py-3.5 rounded-full font-medium hover:bg-[#152258] transition-colors cursor-pointer">
+                  Đăng nhập với Google
+                </InAppBrowserSignIn>
                 <span className="text-sm text-gray-400">Miễn phí</span>
               </div>
 
@@ -157,11 +154,9 @@ export default async function LandingPage() {
           <p className="text-gray-500 text-lg font-light mb-12 max-w-md mx-auto">
             Miễn phí. Không cần setup. Đăng nhập và thử ngay.
           </p>
-          <SignInButton mode="modal">
-            <button className="inline-flex items-center gap-2.5 bg-[#1B2B6E] text-white px-9 py-4 rounded-full font-medium text-base hover:bg-[#152258] transition-colors cursor-pointer">
-              Đăng nhập với Google
-            </button>
-          </SignInButton>
+          <InAppBrowserSignIn className="inline-flex items-center gap-2.5 bg-[#1B2B6E] text-white px-9 py-4 rounded-full font-medium text-base hover:bg-[#152258] transition-colors cursor-pointer">
+            Đăng nhập với Google
+          </InAppBrowserSignIn>
         </section>
 
         <hr className="border-gray-100 max-w-5xl mx-auto" />
