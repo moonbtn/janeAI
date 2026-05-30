@@ -71,7 +71,7 @@ Hãy:
 1. Xác định job_type: 'tech' | 'business' | 'marketing' | 'other'
 2. Xác định seniority: 'fresher' (0 năm, intern) | 'junior' (1-3 năm) | 'senior' (3+ năm) | 'manager'
 3. Rank 4 kênh theo độ phù hợp dựa trên job_type × seniority:
-   - Fresher/Intern: Facebook Group và YBOX mạnh nhất
+   - Fresher/Intern: Facebook Group mạnh nhất, TopCV có đăng free
    - Junior: Facebook Group + LinkedIn cân bằng
    - Senior/Manager: LinkedIn dominant
    - Tech: LinkedIn + Facebook dev community
@@ -173,10 +173,12 @@ export async function POST(req: NextRequest) {
 
       const raw = message.content[0]?.type === 'text' ? message.content[0].text : ''
       const clean = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
-      const result = JSON.parse(clean) as {
-        job_type: string
-        seniority: string
-        channel_recommendations: ChannelRecommendation[]
+      let result: { job_type: string; seniority: string; channel_recommendations: ChannelRecommendation[] }
+      try {
+        result = JSON.parse(clean)
+      } catch (e) {
+        console.error('Recommend JSON parse failed. Raw:', raw)
+        return NextResponse.json({ error: 'Phân tích kênh thất bại' }, { status: 500 })
       }
 
       return NextResponse.json({ recommendations: result })
