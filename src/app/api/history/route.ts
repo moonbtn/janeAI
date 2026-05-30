@@ -15,13 +15,14 @@ export async function GET() {
   const userEmails = user.emailAddresses.map((e) => e.emailAddress)
   const isAdmin = ADMIN_EMAILS.some((adminEmail) => userEmails.includes(adminEmail))
 
-  const query = getSupabase()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (getSupabase() as any)
     .from('jd_history')
     .select('id, job_title, created_at, user_id')
     .order('created_at', { ascending: false })
     .limit(100)
 
-  if (!isAdmin) query.eq('user_id', user.id)
+  if (!isAdmin) query = query.eq('user_id', user.id)
 
   const { data, error } = await query
 
