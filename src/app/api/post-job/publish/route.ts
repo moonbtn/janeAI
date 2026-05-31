@@ -20,12 +20,16 @@ export async function POST(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: campaign, error: cErr } = await (getSupabaseAdmin() as any)
     .from('post_campaigns')
-    .select('id, channel, content, status')
+    .select('id, channel, content, status, jd_history!inner(user_id)')
     .eq('id', campaign_id)
     .single()
 
   if (cErr || !campaign) {
     return NextResponse.json({ error: 'Không tìm thấy campaign' }, { status: 404 })
+  }
+
+  if (campaign.jd_history?.user_id !== userId) {
+    return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 })
   }
 
   if (campaign.status === 'posted') {

@@ -1,8 +1,11 @@
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { auth } from '@clerk/nextjs/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { checkRateLimit } from '@/lib/rate-limit'
 import type { ContentStyle, ChannelRecommendation } from '@/lib/supabase'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -135,6 +138,19 @@ Chỉ trả về nội dung post, không giải thích, không markdown wrapper.
 }
 
 export async function POST(req: NextRequest) {
+  const { userId } = await auth()
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { allowed } = await checkRateLimit(userId, 'post-job/generate')
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Bạn đã đạt giới hạn 20 lần tạo content mỗi ngày. Thử lại vào ngày mai.' },
+      { status: 429 }
+    )
+  }
+
   try {
     const body = await req.json() as {
       jd_history_id: string

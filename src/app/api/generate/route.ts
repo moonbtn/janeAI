@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -11,6 +13,14 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { allowed, remaining } = await checkRateLimit(userId, 'generate')
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Bạn đã đạt giới hạn 10 lần tạo JD mỗi ngày. Thử lại vào ngày mai.' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+    )
   }
 
   try {
