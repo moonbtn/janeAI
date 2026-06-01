@@ -12,7 +12,7 @@ export async function GET(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (getSupabase() as any)
     .from('questionnaires')
-    .select('id, questions, prefilled_answers, status, expires_at, language')
+    .select('id, questions, prefilled_answers, status, expires_at, language, is_resend')
     .eq('token', token)
     .single()
 
@@ -33,5 +33,6 @@ export async function GET(
     questions: data.questions,
     prefilled_answers: data.prefilled_answers,
     language: (data.language ?? 'vi') as 'vi' | 'en',
+    is_resend: data.is_resend ?? false,
   })
 }

@@ -18,7 +18,7 @@ export async function GET() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (getSupabase() as any)
     .from('jd_history')
-    .select('id, job_title, created_at, user_id')
+    .select('id, job_title, created_at, user_id, status')
     .order('created_at', { ascending: false })
     .limit(100)
 

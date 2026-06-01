@@ -21,7 +21,7 @@ export default function Home() {
   const [generatingDraft, setGeneratingDraft] = useState(false)
 
   // History
-  const [history, setHistory] = useState<Pick<JdHistory, 'id' | 'job_title' | 'created_at'>[]>([])
+  const [history, setHistory] = useState<Pick<JdHistory, 'id' | 'job_title' | 'created_at' | 'status'>[]>([])
   const [showHistory, setShowHistory] = useState(false)
 
   // Questionnaire flow
