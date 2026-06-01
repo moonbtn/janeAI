@@ -22,23 +22,26 @@ const CHANNEL_META: Record<Channel, {
 const CHANNEL_STYLES: Record<Channel, ContentStyle[]> = {
   linkedin:  ['announcement', 'story_telling', 'benefit_focus'],
   facebook:  ['announcement', 'story_telling', 'benefit_focus', 'seeding', 'trending_funny'],
-  threads:   ['benefit_focus', 'seeding', 'trending_funny'],
+  threads:   ['relatable_scenario', 'opinion_hook', 'insider_drop'],
   topcv:     [], // content-only, no style picker
 }
 
 const STYLE_LABELS: Record<ContentStyle, string> = {
-  announcement:   'Thông báo',
-  story_telling:  'Story Telling',
-  benefit_focus:  'Benefit Focus',
-  seeding:        'Seeding',
-  trending_funny: 'Trending / Funny',
+  announcement:       'Thông báo',
+  story_telling:      'Story Telling',
+  benefit_focus:      'Benefit Focus',
+  seeding:            'Seeding',
+  trending_funny:     'Trending / Funny',
+  opinion_hook:       'Opinion Hook',
+  relatable_scenario: 'Scenario',
+  insider_drop:       'Insider Drop',
 }
 
 // Recommended style per channel
 const CHANNEL_RECOMMENDED_STYLE: Partial<Record<Channel, ContentStyle>> = {
   linkedin:  'announcement',
   facebook:  'seeding',
-  threads:   'benefit_focus',
+  threads:   'relatable_scenario',
 }
 
 type Props = {
@@ -78,6 +81,8 @@ export default function ChannelPostBlock({
   )
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
+  const [replyStarters, setReplyStarters] = useState<string[]>([])
+  const [copiedReply, setCopiedReply] = useState<number | null>(null)
   const [connecting, setConnecting] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -126,10 +131,11 @@ export default function ChannelPostBlock({
           style: isContentOnly ? 'announcement' : selectedStyle,
         }),
       })
-      const data = await res.json() as { campaign?: PostCampaign; error?: string }
+      const data = await res.json() as { campaign?: PostCampaign; error?: string; replyStarters?: string[] }
       if (data.error || !data.campaign) throw new Error(data.error ?? 'Lỗi generate')
       onCampaignGenerated(data.campaign)
       setContentExpanded(true)
+      if (data.replyStarters?.length) setReplyStarters(data.replyStarters)
     } catch (err) {
       setGenerateError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
     } finally {
@@ -148,6 +154,15 @@ export default function ChannelPostBlock({
     } finally {
       setPublishing(false)
     }
+  }
+
+  function handleCopyReply(index: number) {
+    const text = replyStarters[index]
+    if (!text) return
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedReply(index)
+      setTimeout(() => setCopiedReply(null), 2000)
+    }).catch(() => {})
   }
 
   function handleCopy() {
@@ -316,6 +331,23 @@ export default function ChannelPostBlock({
                   {connecting ? 'Đang chờ kết nối...' : `Kết nối ${meta.label} →`}
                 </button>
               )}
+          {/* Reply starters — Threads only */}
+          {channel === 'threads' && replyStarters.length > 0 && (
+            <div className="mt-3 border border-gray-100 rounded-xl p-3 bg-gray-50 space-y-2">
+              <p className="text-xs font-semibold text-gray-500">Reply ngay sau khi đăng 👇</p>
+              {replyStarters.map((reply, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <p className="text-xs text-gray-700 flex-1 leading-relaxed">{reply}</p>
+                  <button
+                    onClick={() => handleCopyReply(i)}
+                    className="shrink-0 text-xs px-2 py-1 rounded-md border border-gray-200 bg-white text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    {copiedReply === i ? '✓' : 'Copy'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
             </div>
           )}
         </div>
