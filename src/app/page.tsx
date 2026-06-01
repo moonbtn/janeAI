@@ -35,11 +35,11 @@ export default async function LandingPage() {
                 <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-[1.08] text-[#1B2B6E]">
                   Welcome to Jane AI —{' '}
                   <em className="text-[#E8614D]">
-                    tuyển dụng như<br />headhunter lành nghề.
+                    tuyển dụng như<br />một headhunter lành nghề.
                   </em>
                 </h1>
                 <p className="text-gray-500 leading-relaxed">
-                  Jane AI được xây bởi Jane, một headhunter với hơn 10 năm kinh nghiệm tuyển dụng từ mass recruitment đến C-level, từ Finance, IT đến FMCG, Retail ở Việt Nam và cả SEA. Cộng với hơn 4 năm vận hành Recruitment Academy và 100GB tài liệu thật được đưa vào làm nền tảng, để Jane AI trở thành chuyên gia tuyển dụng trong tay bạn.
+                  Jane AI được xây bởi Jane, một headhunter với hơn 10 năm kinh nghiệm tuyển dụng từ mass recruitment đến C-level, từ Banking, Finance, Insurance đến IT, Retail ở Việt Nam và cả SEA. Cộng với hơn 4 năm vận hành Recruitment Academy và 100GB tài liệu thật được đưa vào làm nền tảng, để Jane AI trở thành chuyên gia tuyển dụng trong tay bạn.
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -97,15 +97,14 @@ export default async function LandingPage() {
         <section className="py-28 px-8 max-w-5xl mx-auto">
           <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-16">Training</p>
           <h2 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-tight mb-16 max-w-3xl text-[#1B2B6E]">
-            Jane AI không học<br />
-            từ internet —<br />
+            Jane AI không học từ internet —<br />
             <em className="text-[#E8614D]">Jane AI học từ<br />10 năm làm nghề của Jane.</em>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
               { stat: '100+', label: 'GB tài liệu thật', desc: 'JD thật, brief thật, feedback thật từ hiring manager sau hàng trăm vòng phỏng vấn.' },
               { stat: '10', label: 'năm đào tạo team', desc: 'Video, slide, case study từ hàng chục khóa training nội bộ — cách đọc CV, cách hỏi sếp, cách qualify ứng viên.' },
-              { stat: '4', label: 'năm Recruitment Academy', desc: 'Chương trình đào tạo recruiter từ cơ bản đến nâng cao — toàn bộ được đưa vào làm nền tảng cho Jane AI.' },
+              { stat: '4', label: 'năm Recruitment Academy', desc: 'Chương trình đào tạo recruiter từ cơ bản đến nâng cao — đã đào tạo hơn 800 recruiters, toàn bộ được đưa vào làm nền tảng cho Jane AI.' },
             ].map(({ stat, label, desc }) => (
               <div key={label} className="space-y-3">
                 <p className="font-[family-name:var(--font-playfair)] text-5xl font-black text-[#E8614D] italic">{stat}</p>
@@ -120,20 +119,29 @@ export default async function LandingPage() {
 
         {/* Features */}
         <section className="py-28 px-8 max-w-5xl mx-auto">
-          <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-16">Jane AI làm được gì</p>
+          <p className="text-xs font-medium text-gray-400 tracking-widest uppercase mb-6">Jane AI làm được gì</p>
+          <h2 className="font-[family-name:var(--font-playfair)] text-5xl font-black leading-tight mb-16 max-w-2xl text-[#1B2B6E]">
+            Từ hiểu job đến đăng bài —{' '}
+            <em className="text-[#E8614D]">Jane lo hết.</em>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
             {[
-              { title: 'AI Chatbot tuyển dụng', desc: 'Hỏi bất cứ điều gì về recruitment — cách viết JD, cách handle offer negotiation, cách shortlist CV. Jane trả lời như một senior headhunter.' },
-              { title: 'Job Spec', desc: 'Paste JD hoặc nhập yêu cầu thô — Jane tạo bảng hỏi gửi hiring manager, thu thập đúng yêu cầu, rồi tinh chỉnh JD từ câu trả lời thật.' },
-              { title: 'CV Matching', desc: 'Upload CV, Jane so sánh với tiêu chí thật từ sếp — không phải từ JD gốc đã bị đoán mò. Tiết kiệm hàng giờ đọc CV không phù hợp.' },
-              { title: 'Qualifying Questions', desc: 'Jane tạo checklist câu hỏi phone screening dựa trên đúng những gì hiring manager cần — không bỏ sót tiêu chí ẩn.' },
-            ].map(({ title, desc }) => (
+              { title: 'AI Chatbot tuyển dụng', desc: 'Hỏi bất cứ điều gì về recruitment — cách viết JD, cách handle offer negotiation, cách shortlist CV. Jane trả lời như một senior headhunter.', soon: true },
+              { title: 'Job Specification', desc: 'Recruiter thường nhận JD sơ sài rồi tự đoán — dẫn đến tìm sai người, mất thời gian cả hai bên. Jane tạo bảng hỏi chuẩn để recruiter gửi hiring manager, thu thập đúng yêu cầu thật — rồi từ đó gợi ý chiến lược tuyển dụng phù hợp.', soon: false },
+              { title: 'Job Posting', desc: 'Dựa trên vị trí và ngành nghề, Jane gợi ý kênh phù hợp nhất để tiếp cận đúng ứng viên — rồi tự generate bài đăng tuyển dụng cho từng kênh, sẵn sàng để đăng.', soon: false },
+              { title: 'Job Searching', desc: 'Jane phân tích vị trí và cho biết nên tìm ứng viên ở đâu, dùng từ khóa gì, tiếp cận theo cách nào — để recruiter không mất thời gian tìm sai chỗ.', soon: true },
+            ].map(({ title, desc, soon }) => (
               <div key={title} className="flex gap-5">
                 <div className="w-10 h-10 border border-[#D0D8F0] bg-[#EEF0FA] rounded-xl flex items-center justify-center shrink-0 mt-0.5">
                   <div className="w-2 h-2 bg-[#E8614D] rounded-full" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <h3 className="font-semibold text-gray-900">{title}</h3>
+                    {soon && (
+                      <span className="text-[10px] font-medium text-gray-400 border border-gray-200 rounded-full px-2 py-0.5 leading-none">Coming soon</span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
                 </div>
               </div>
