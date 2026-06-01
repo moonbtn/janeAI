@@ -149,6 +149,70 @@ async function fetchQuestionnaireContext(jdHistoryId: string): Promise<string> {
   return lines.join('\n')
 }
 
+function pickStoryAngle(
+  jobType: string,
+  seniority: string,
+  questionnaireContext: string
+): StoryAngle {
+  const weights: Record<StoryAngle, number> = {
+    peer_pressure: 1,
+    hidden_gem: 1,
+    challenge_reframe: 1,
+    career_pivot: 1,
+    insider_scoop: 1,
+    urgency_moment: 1,
+  }
+
+  // Boost based on job context
+  if (['senior', 'manager'].includes(seniority) && jobType === 'tech') {
+    weights.peer_pressure = 3
+  }
+  if (questionnaireContext.includes('thách thức') || questionnaireContext.includes('usp_3')) {
+    weights.challenge_reframe = 3
+  }
+  if (questionnaireContext.length > 200) {
+    weights.insider_scoop = 3
+  }
+  if (['junior', 'fresher'].includes(seniority) && jobType === 'business') {
+    weights.career_pivot = 3
+  }
+  if (questionnaireContext.length < 80) {
+    weights.hidden_gem = 3
+  }
+
+  // Weighted random pick
+  const entries = Object.entries(weights) as [StoryAngle, number][]
+  const total = entries.reduce((sum, [, w]) => sum + w, 0)
+  let rand = Math.random() * total
+  for (const [angle, weight] of entries) {
+    rand -= weight
+    if (rand <= 0) return angle
+  }
+  return 'urgency_moment'
+}
+
+function buildAngleDirective(
+  angle: StoryAngle,
+  seniority: string,
+  questionnaireContext: string
+): string {
+  const directives: Record<StoryAngle, string> = {
+    peer_pressure: `Bắt đầu bằng câu hỏi hoặc tình huống chạm vào self-doubt của ứng viên ${seniority}. Ví dụ: một khoảnh khắc họ tự hỏi mình có đủ giỏi không, có đáng apply không. Sau đó dẫn dắt đến cách role/team này là nơi người như vậy thật ra rất phù hợp.`,
+
+    hidden_gem: `Mở đầu bằng một nghịch lý: điều gì đó về công ty/team mà nghe qua thì không ấn tượng, nhưng khi hiểu rõ lại là lợi thế. Reframe "ít người biết" thành "cơ hội bạn biết trước người khác".`,
+
+    challenge_reframe: `Mở đầu bằng tình huống cụ thể liên quan đến thách thức lớn nhất của role này: "${questionnaireContext.substring(0, 100)}...". Đừng giải thích ngay — để người đọc tự nhận ra mình trong đó. Sau đó reframe tại sao đây chính là lý do nên join, không phải lý do né tránh.`,
+
+    career_pivot: `Kể câu chuyện ngắn về một người đã pivot sang role/ngành này và thấy đây là quyết định đúng. Không cần nêu tên — chỉ cần scenario đủ cụ thể để người đọc thấy mình trong đó. Dẫn vào JD tự nhiên ở cuối.`,
+
+    insider_scoop: `Mở đầu bằng một chi tiết nhỏ, thật, bất ngờ về team hoặc cách làm việc (lấy từ thông tin hiring manager đã cung cấp). Không giải thích chi tiết đó ngay — để nó tự nói lên. Tạo cảm giác người đọc đang được nghe "bí mật nội bộ".`,
+
+    urgency_moment: `Bắt đầu bằng một khoảnh khắc hoặc cảm giác mà ứng viên đang trải qua ngay lúc này — buổi sáng đi làm mà không muốn vào, cuối tuần mà vẫn lo về job, nhìn LinkedIn của người khác mà thấy gì đó. Kết nối cảm giác đó với lý do role này đáng để thử.`,
+  }
+
+  return directives[angle]
+}
+
 function buildRecommendPrompt(jobTitle: string, jdText: string, questionnaireContext: string): string {
   return `Bạn là chuyên gia tuyển dụng. Phân tích JD và trả về JSON channel recommendation.
 
