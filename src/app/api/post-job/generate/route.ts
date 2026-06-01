@@ -473,7 +473,7 @@ export async function POST(req: NextRequest) {
         try {
           const replyMsg = await client.messages.create({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 200,
+            max_tokens: 400,
             messages: [{ role: 'user', content: buildReplyStarterPrompt(content) }],
           })
           const raw = replyMsg.content[0]?.type === 'text' ? replyMsg.content[0].text.trim() : '[]'
