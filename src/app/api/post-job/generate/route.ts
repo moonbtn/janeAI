@@ -10,6 +10,95 @@ import type { ContentStyle, ChannelRecommendation } from '@/lib/supabase'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+type StoryAngle =
+  | 'peer_pressure'
+  | 'hidden_gem'
+  | 'challenge_reframe'
+  | 'career_pivot'
+  | 'insider_scoop'
+  | 'urgency_moment'
+
+interface CandidatePersona {
+  motivation: string
+  barrier: string
+  trigger: string
+}
+
+function getCandidatePersona(jobType: string, seniority: string): CandidatePersona {
+  const key = `${jobType}:${seniority}`
+  const map: Record<string, CandidatePersona> = {
+    'tech:fresher': {
+      motivation: 'Học skill thật, có lương part-time, bước chân đầu vào ngành',
+      barrier: 'Chưa biết công ty, process tuyển dụng có vẻ gắt, không chắc đủ tiêu chuẩn',
+      trigger: 'Sắp ra trường, cần kinh nghiệm thực tế để không bị gap',
+    },
+    'tech:junior': {
+      motivation: 'Tech stack xịn hơn, mentor tốt, grow nhanh hơn chỗ cũ',
+      barrier: 'Công ty nhỏ hơn big tech, ít brand name',
+      trigger: 'Job cũ không còn challenge, cảm giác mình đang đứng yên',
+    },
+    'tech:senior': {
+      motivation: 'Ownership cao, impact rộng hơn, làm được quyết định kiến trúc',
+      barrier: 'Brand không đủ lớn để biện minh với bản thân, lương cần cạnh tranh với big tech',
+      trigger: 'Bị cap technical ở job cũ, làm mãi một kiểu không thấy grow',
+    },
+    'tech:manager': {
+      motivation: 'Build team thật sự, có product vision rõ ràng, tự quyết hiring',
+      barrier: 'Scope role không rõ, sợ downgrade từ tech sang management thuần',
+      trigger: 'Muốn lead thật sự chứ không chỉ là senior code nhiều nhất',
+    },
+    'business:fresher': {
+      motivation: 'Học sales/BD thực chiến, không chỉ chạy admin cho senior',
+      barrier: 'Lương thấp hơn MT program của Unilever/Pepsico, brand nhỏ hơn',
+      trigger: 'Chưa có kinh nghiệm nên cần chỗ chịu train, không muốn làm bừa',
+    },
+    'business:junior': {
+      motivation: 'Thăng tiến nhanh, exposure thị trường quốc tế, ownership deal',
+      barrier: 'Ngành hoặc công ty ít tên tuổi, khó explain với bạn bè',
+      trigger: 'Job cũ không có lộ trình rõ, làm 2 năm vẫn ở vị trí cũ',
+    },
+    'business:senior': {
+      motivation: 'P&L ownership, mở thị trường mới, tự build team',
+      barrier: 'Brand chưa đủ lớn để justify chuyển từ công ty hiện tại',
+      trigger: 'Muốn thử challenge mới, job cũ đã comfortable quá mức',
+    },
+    'business:manager': {
+      motivation: 'Chiến lược thật sự, không chỉ execute, có tiếng nói với C-level',
+      barrier: 'Rủi ro cao khi chuyển sang công ty nhỏ hơn',
+      trigger: 'Job cũ chính trị nhiều, execution không đi đến đâu',
+    },
+    'marketing:fresher': {
+      motivation: 'Làm campaign thật, hiểu product side, không chỉ support designer',
+      barrier: 'Agency quen rồi, in-house culture khác, sợ boring',
+      trigger: 'Muốn ownership, mệt làm cho brief của client rồi',
+    },
+    'marketing:junior': {
+      motivation: 'Creative freedom, data-driven culture, budget thật để chạy',
+      barrier: 'Budget nhỏ hơn agency lớn, ít prestige',
+      trigger: 'Muốn ownership thật sự, không chỉ execute brief',
+    },
+    'marketing:senior': {
+      motivation: 'Brand building từ đầu, cross-function collaboration, region scope',
+      barrier: 'Công ty không có brand marketing đủ mạnh để học hỏi',
+      trigger: 'Job cũ stagnant, làm đi làm lại campaign format cũ',
+    },
+    'marketing:manager': {
+      motivation: 'Xây team, chiến lược dài hạn, budget lớn hơn',
+      barrier: 'Leadership chưa tin tưởng marketing đủ để cho budget',
+      trigger: 'Muốn chứng minh marketing là growth driver, không chỉ cost center',
+    },
+  }
+
+  return (
+    map[key] ??
+    map[`${jobType}:junior`] ?? {
+      motivation: 'Tìm môi trường tốt hơn, học được nhiều hơn',
+      barrier: 'Chưa biết rõ văn hóa công ty',
+      trigger: 'Job hiện tại không còn phù hợp',
+    }
+  )
+}
+
 // Fetch questionnaire answers cho JD này
 async function fetchQuestionnaireContext(jdHistoryId: string): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
