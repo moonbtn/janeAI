@@ -79,7 +79,7 @@ export type ConnectedAccount = {
   created_at: string
 }
 
-export type ContentStyle = 'announcement' | 'story_telling' | 'benefit_focus' | 'seeding' | 'trending_funny'
+export type ContentStyle = 'announcement' | 'story_telling' | 'benefit_focus' | 'seeding' | 'trending_funny' | 'opinion_hook' | 'relatable_scenario' | 'insider_drop'
 
 export type ChannelRecommendation = {
   channel: 'linkedin' | 'facebook' | 'threads' | 'topcv'
