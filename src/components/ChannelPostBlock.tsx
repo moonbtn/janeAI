@@ -20,7 +20,7 @@ const CHANNEL_META: Record<Channel, {
 
 // Styles available per channel
 const CHANNEL_STYLES: Record<Channel, ContentStyle[]> = {
-  linkedin:  ['announcement', 'story_telling', 'benefit_focus'],
+  linkedin:  ['announcement', 'story_telling', 'benefit_focus', 'english_announcement'],
   facebook:  ['announcement', 'story_telling', 'benefit_focus', 'seeding', 'trending_funny'],
   threads:   ['relatable_scenario', 'opinion_hook', 'insider_drop'],
   topcv:     [], // content-only, no style picker
@@ -35,6 +35,7 @@ const STYLE_LABELS: Record<ContentStyle, string> = {
   opinion_hook:       'Opinion Hook',
   relatable_scenario: 'Scenario',
   insider_drop:       'Insider Drop',
+  english_announcement: 'English (EN)',
 }
 
 // Recommended style per channel

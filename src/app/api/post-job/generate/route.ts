@@ -283,6 +283,7 @@ const STYLE_DESCRIPTIONS: Record<ContentStyle, string> = {
   opinion_hook: '[CHỈ DÙNG TRÊN THREADS] Mở đầu bằng take gây tranh cãi về ngành/nghề liên quan đến role này — một nhận định mà người trong ngành sẽ muốn đồng ý hoặc phản bác. Không nhắc tên công ty/role 3 câu đầu. Kết bằng câu hỏi mở mời người đọc chia sẻ quan điểm.',
   relatable_scenario: '[CHỈ DÙNG TRÊN THREADS] Mở đầu bằng scenario cụ thể mà ứng viên mục tiêu đang sống right now — một khoảnh khắc, cảm giác, hoặc tình huống họ tự thấy mình trong đó ngay lập tức. Không nhắc tên công ty/role 3 câu đầu. Dẫn dắt tự nhiên vào role. Kết bằng câu hỏi mở.',
   insider_drop: '[CHỈ DÙNG TRÊN THREADS] Mở đầu bằng 1 chi tiết nhỏ, thật, bất ngờ về team hoặc cách làm việc (lấy từ thông tin hiring manager đã cung cấp). Tạo cảm giác người đọc đang được nghe "bí mật nội bộ" — không giải thích ngay, để chi tiết đó tự nói lên. Kết bằng câu hỏi mở.',
+  english_announcement: '[ENGLISH ONLY] Short, intriguing announcement targeting senior/executive/international candidates. One specific hook line about the role or team → 3-4 ultra-short bullets (role scope, 1-2 hard requirements, 1 thing that makes it interesting) → 1 low-pressure CTA. Goal: give just enough to spark curiosity — the reader should want to search/apply on their own. DO NOT oversell, DO NOT explain too much.',
 }
 
 const CHANNEL_RULES: Record<string, string> = {
@@ -327,7 +328,7 @@ ${angleBlock}
 ---
 
 **Kênh:** ${channel}
-**Rules của kênh:** ${CHANNEL_RULES[channel] ?? ''}
+**Rules của kênh:** ${style === 'english_announcement' ? 'Write ENTIRELY in English. Max 150 words. No more than 2 emojis (or none). Peer-to-peer tone — not HR-to-candidate. NEVER use: passionate, rockstar, ninja, dynamic team, exciting opportunity, work-life balance. Do not over-explain — assume the reader is smart enough to research on their own.' : CHANNEL_RULES[channel] ?? ''}
 
 **Style yêu cầu:** ${style}
 **Mô tả style:** ${STYLE_DESCRIPTIONS[style]}
