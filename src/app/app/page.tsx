@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { UserButton } from '@clerk/nextjs'
 import { JdHistory } from '@/lib/supabase'
 import FeedbackWidget from '@/components/FeedbackWidget'
@@ -107,12 +107,14 @@ export default function Home() {
   }, [])
 
   // Auto-poll: notify recruiter when HM submits answers
+  const toastShownRef = useRef(false)
   useEffect(() => {
     if (!questionnaireId) return
     if (answersData) return  // already loaded — don't re-subscribe
+    toastShownRef.current = false  // reset when questionnaire changes
 
-    let toastTimer: ReturnType<typeof setTimeout> | null = null
     const controller = new AbortController()
+    let intervalId: ReturnType<typeof setInterval>
 
     async function checkAnswers() {
       try {
@@ -124,19 +126,24 @@ export default function Home() {
         // Runtime guard: ensure we got a real summary, not a partial object
         if (!data || !data.answers) return
         setAnswersData(data)
-        setShowAnswersReadyToast(true)
-        toastTimer = setTimeout(() => setShowAnswersReadyToast(false), 8000)
+        // Show toast only once
+        if (!toastShownRef.current) {
+          toastShownRef.current = true
+          setShowAnswersReadyToast(true)
+          setTimeout(() => setShowAnswersReadyToast(false), 5000)
+        }
+        // Stop polling — no need to keep checking
+        clearInterval(intervalId)
       } catch {
         // AbortError and network errors are silently swallowed
       }
     }
 
     checkAnswers()
-    const interval = setInterval(checkAnswers, 30000)
+    intervalId = setInterval(checkAnswers, 30000)
     return () => {
       controller.abort()
-      clearInterval(interval)
-      if (toastTimer) clearTimeout(toastTimer)
+      clearInterval(intervalId)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionnaireId])  // intentionally excludes answersData — the if-guard handles it
@@ -600,12 +607,17 @@ export default function Home() {
               <p className="text-xs text-gray-400 mt-1.5">Gửi link này cho sếp qua Zalo/email — không cần đăng nhập</p>
             </div>
 
-            {/* Waiting for HM */}
-            {!answersData && (
+            {/* Waiting for HM / Done indicator */}
+            {!answersData ? (
               <div className="bg-gray-50 rounded-xl border border-gray-100 px-4 py-3">
                 <p className="text-xs text-gray-400 text-center">
                   Đang chờ sếp điền bảng hỏi... (Jane sẽ tự báo khi sếp xong)
                 </p>
+              </div>
+            ) : (
+              <div className="bg-green-50 rounded-xl border border-green-200 px-4 py-2.5 flex items-center gap-2">
+                <span className="text-green-600 text-base">✓</span>
+                <p className="text-xs font-medium text-green-700">Sếp đã điền xong — xem answers bên dưới</p>
               </div>
             )}
           </div>
