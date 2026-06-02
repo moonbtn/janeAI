@@ -516,39 +516,53 @@ export default function Home() {
               </div>
             )}
           </div>
-          <div className="flex gap-2">
-            {(['vi', 'en'] as const).map((lang) => (
-              <button
-                key={lang}
-                onClick={() => setQuestionnaireLanguage(lang)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
-                  questionnaireLanguage === lang
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                }`}
-              >
-                {lang === 'vi' ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={handleCreateQuestionnaire}
-            disabled={generatingQ || !pastedJd.trim()}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-          >
-            {generatingQ ? (
-              <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Đang tạo bảng hỏi... (~15s)
-              </>
-            ) : (
-              <>✦ Tạo bảng hỏi cho sếp</>
-            )}
-          </button>
         </div>
+
+        {/* Bước 1: Job Specification — hiện khi có JD */}
+        {pastedJd.trim() && (
+          <div className="bg-white rounded-xl border border-indigo-100 p-6 space-y-4 animate-fadeIn">
+            <div>
+              <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">Bước 1 · Job Specification</p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                JD chỉ là bề nổi. Jane hỏi sếp để khai thác insight thật sự đằng sau — narrow down kỳ vọng, để bạn submit ứng viên với rationale rõ ràng hơn.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              {(['vi', 'en'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setQuestionnaireLanguage(lang)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                    questionnaireLanguage === lang
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {lang === 'vi' ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleCreateQuestionnaire}
+              disabled={generatingQ || !pastedJd.trim()}
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            >
+              {generatingQ ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Đang tạo bảng hỏi... (~15s)
+                </>
+              ) : (
+                <>✦ Tạo bảng hỏi cho sếp</>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Questionnaire section */}
         {questionnaireToken && (
