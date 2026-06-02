@@ -452,6 +452,70 @@ export default function Home() {
           {urlError && (
             <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{urlError} — hãy copy paste nội dung JD trực tiếp nhé.</p>
           )}
+          {/* Accordion: Chưa có JD — inside main card */}
+          <div className="border border-gray-100 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setShowDraftPanel(!showDraftPanel)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+            >
+              <span>Chưa có JD? Để Jane gợi ý draft</span>
+              <svg
+                className={`w-4 h-4 transition-transform duration-200 ${showDraftPanel ? 'rotate-180' : ''}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showDraftPanel && (
+              <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Vị trí tuyển dụng</label>
+                  <input
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder="VD: Senior Frontend Developer"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Yêu cầu thô</label>
+                  <textarea
+                    rows={4}
+                    value={rawInput}
+                    onChange={(e) => setRawInput(e.target.value)}
+                    placeholder="3 năm React, tiếng Anh tốt, lương 2000-3000 USD..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                  />
+                </div>
+                <button
+                  onClick={handleGenerateDraft}
+                  disabled={generatingDraft || !jobTitle.trim() || !rawInput.trim()}
+                  className="w-full border border-indigo-300 text-indigo-600 rounded-lg py-2 text-sm font-medium hover:bg-indigo-50 disabled:opacity-50 transition-colors"
+                >
+                  {generatingDraft ? 'Đang gợi ý...' : 'Gợi ý JD draft →'}
+                </button>
+
+                {draftJd && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-amber-700">✦ Jane gợi ý — chưa chính xác</p>
+                      <button
+                        onClick={handleUseDraft}
+                        className="text-xs text-indigo-600 font-medium border border-indigo-200 rounded-lg px-3 py-1 hover:bg-indigo-50 bg-white"
+                      >
+                        Dùng draft này →
+                      </button>
+                    </div>
+                    <pre className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto">
+                      {draftJd}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex gap-2">
             {(['vi', 'en'] as const).map((lang) => (
               <button
@@ -484,71 +548,6 @@ export default function Home() {
               <>✦ Tạo bảng hỏi cho sếp</>
             )}
           </button>
-        </div>
-
-        {/* Accordion: Chưa có JD */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <button
-            onClick={() => setShowDraftPanel(!showDraftPanel)}
-            className="w-full flex items-center justify-between px-6 py-4 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
-          >
-            <span>Chưa có JD? Để Jane gợi ý draft</span>
-            <svg
-              className={`w-4 h-4 transition-transform duration-200 ${showDraftPanel ? 'rotate-180' : ''}`}
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {showDraftPanel && (
-            <div className="px-6 pb-6 space-y-3 border-t border-gray-100 pt-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Vị trí tuyển dụng</label>
-                <input
-                  type="text"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                  placeholder="VD: Senior Frontend Developer"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Yêu cầu thô</label>
-                <textarea
-                  rows={4}
-                  value={rawInput}
-                  onChange={(e) => setRawInput(e.target.value)}
-                  placeholder="3 năm React, tiếng Anh tốt, lương 2000-3000 USD..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-                />
-              </div>
-              <button
-                onClick={handleGenerateDraft}
-                disabled={generatingDraft || !jobTitle.trim() || !rawInput.trim()}
-                className="w-full border border-indigo-300 text-indigo-600 rounded-lg py-2 text-sm font-medium hover:bg-indigo-50 disabled:opacity-50 transition-colors"
-              >
-                {generatingDraft ? 'Đang gợi ý...' : 'Gợi ý JD draft →'}
-              </button>
-
-              {draftJd && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-amber-700">✦ Jane gợi ý — chưa chính xác</p>
-                    <button
-                      onClick={handleUseDraft}
-                      className="text-xs text-indigo-600 font-medium border border-indigo-200 rounded-lg px-3 py-1 hover:bg-indigo-50 bg-white"
-                    >
-                      Dùng draft này →
-                    </button>
-                  </div>
-                  <pre className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto">
-                    {draftJd}
-                  </pre>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Questionnaire section */}
