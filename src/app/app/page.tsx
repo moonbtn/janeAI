@@ -632,15 +632,35 @@ export default function Home() {
               collapsed={!!postingJdId}
               onPost={() => { if (activeJdHistoryId) setPostingJdId(activeJdHistoryId) }}
             />
+
+            {/* Bước 2 teaser */}
+            {!postingJdId && (
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-2 animate-fadeIn">
+                <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide">Bước 2 · Đăng tuyển</p>
+                <p className="text-sm text-gray-500">Đăng JD đã tinh chỉnh lên LinkedIn, TopCV và các kênh khác.</p>
+                <button
+                  onClick={() => { if (activeJdHistoryId) setPostingJdId(activeJdHistoryId) }}
+                  className="w-full border border-indigo-300 text-indigo-600 rounded-lg py-2.5 text-sm font-medium hover:bg-indigo-50 transition-colors"
+                >
+                  Đăng tuyển ngay →
+                </button>
+              </div>
+            )}
+
             {postingJdId && (
               <PostingCard jdHistoryId={postingJdId} />
             )}
-          </div>
-        )}
 
-        {/* Posting Card (from history, no summary context) */}
-        {!answersData && postingJdId && (
-          <PostingCard jdHistoryId={postingJdId} />
+            {/* Bước 3 placeholder */}
+            {postingJdId && (
+              <div className="bg-gray-50 rounded-xl border border-dashed border-gray-200 p-5 animate-fadeIn">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Bước 3 · Search ứng viên</p>
+                  <span className="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-medium">coming soon</span>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
