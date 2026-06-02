@@ -452,18 +452,6 @@ export default function Home() {
           {urlError && (
             <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{urlError} — hãy copy paste nội dung JD trực tiếp nhé.</p>
           )}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            {[
-              { step: '1', text: 'Jane đọc JD', sub: 'tạo bảng hỏi phù hợp' },
-              { step: '2', text: 'Sếp xác nhận', sub: 'tiêu chí thật, không đoán mò' },
-              { step: '3', text: 'Tinh chỉnh JD', sub: 'on-point, tìm đúng người' },
-            ].map(({ step, text, sub }) => (
-              <div key={step} className="bg-gray-50 rounded-lg px-2 py-2.5">
-                <p className="text-xs font-semibold text-indigo-600 mb-0.5">Bước {step}: {text}</p>
-                <p className="text-xs text-gray-400 leading-tight">{sub}</p>
-              </div>
-            ))}
-          </div>
           <div className="flex gap-2">
             {(['vi', 'en'] as const).map((lang) => (
               <button
