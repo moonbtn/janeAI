@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function POST(
   req: NextRequest,
@@ -15,7 +15,7 @@ export async function POST(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q, error: fetchError } = await (getSupabase() as any)
+  const { data: q, error: fetchError } = await (getSupabaseAdmin() as any)
     .from('questionnaires')
     .select('id, status, expires_at')
     .eq('token', token)
@@ -33,7 +33,7 @@ export async function POST(
     return NextResponse.json({ error: 'Đã submit rồi' }, { status: 409 })
   }
 
-  const supabase = getSupabase()
+  const supabase = getSupabaseAdmin()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: insertError } = await (supabase as any)

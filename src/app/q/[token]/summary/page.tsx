@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Question } from '@/lib/supabase'
 import PrintTrigger from './PrintTrigger'
 import PrintButton from './PrintButton'
@@ -12,13 +12,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { token } = await params
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q } = await (getSupabase() as any)
+  const { data: q } = await (getSupabaseAdmin() as any)
     .from('questionnaires')
     .select('jd_history_id')
     .eq('token', token)
     .single()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: jd } = q ? await (getSupabase() as any)
+  const { data: jd } = q ? await (getSupabaseAdmin() as any)
     .from('jd_history')
     .select('job_title')
     .eq('id', q.jd_history_id)
@@ -69,7 +69,7 @@ export default async function SummaryPrintPage({
   const { token } = await params
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q } = await (getSupabase() as any)
+  const { data: q } = await (getSupabaseAdmin() as any)
     .from('questionnaires')
     .select('id, questions, jd_history_id')
     .eq('token', token)
@@ -78,14 +78,14 @@ export default async function SummaryPrintPage({
   if (!q) notFound()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: jd } = await (getSupabase() as any)
+  const { data: jd } = await (getSupabaseAdmin() as any)
     .from('jd_history')
     .select('job_title')
     .eq('id', q.jd_history_id)
     .single()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ans } = await (getSupabase() as any)
+  const { data: ans } = await (getSupabaseAdmin() as any)
     .from('questionnaire_answers')
     .select('answers, submitted_at')
     .eq('questionnaire_id', q.id)

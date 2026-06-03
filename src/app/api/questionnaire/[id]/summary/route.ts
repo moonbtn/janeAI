@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Question } from '@/lib/supabase'
 
 export type QuestionnaireSummaryData = {
@@ -23,7 +23,7 @@ export async function GET(
   const { id } = await params
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q, error: qError } = await (getSupabase() as any)
+  const { data: q, error: qError } = await (getSupabaseAdmin() as any)
     .from('questionnaires')
     .select('id, questions, token, jd_history_id')
     .eq('id', id)
@@ -32,14 +32,14 @@ export async function GET(
   if (qError || !q) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: jd } = await (getSupabase() as any)
+  const { data: jd } = await (getSupabaseAdmin() as any)
     .from('jd_history')
     .select('job_title')
     .eq('id', q.jd_history_id)
     .single()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ans } = await (getSupabase() as any)
+  const { data: ans } = await (getSupabaseAdmin() as any)
     .from('questionnaire_answers')
     .select('answers, submitted_at')
     .eq('questionnaire_id', id)

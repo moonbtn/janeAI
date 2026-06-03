@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   _req: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
   const { id } = await params
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q, error: qError } = await (getSupabase() as any)
+  const { data: q, error: qError } = await (getSupabaseAdmin() as any)
     .from('questionnaires')
     .select('id, questions, prefilled_answers, status, jd_history_id')
     .eq('id', id)
@@ -21,7 +21,7 @@ export async function GET(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ans } = await (getSupabase() as any)
+  const { data: ans } = await (getSupabaseAdmin() as any)
     .from('questionnaire_answers')
     .select('answers, submitted_at')
     .eq('questionnaire_id', id)

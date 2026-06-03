@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { Question } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: jdRecord, error: jdError } = await (getSupabase() as any)
+    const { data: jdRecord, error: jdError } = await (getSupabaseAdmin() as any)
       .from('jd_history')
       .insert({
         job_title: providedTitle || parsed.jobTitle || 'Không rõ vị trí',
@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (getSupabase() as any)
+    const { data, error } = await (getSupabaseAdmin() as any)
       .from('questionnaires')
       .insert({
         jd_history_id: jdRecord.id,

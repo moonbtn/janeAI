@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function PATCH(
   req: NextRequest,
@@ -19,7 +19,7 @@ export async function PATCH(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabase() as any)
+  const { error } = await (getSupabaseAdmin() as any)
     .from('jd_history')
     .update({ status })
     .eq('id', id)

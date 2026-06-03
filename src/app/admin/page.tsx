@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 const ADMIN_EMAIL = 'jane.nguyen@onearw.com'
 
@@ -18,7 +18,7 @@ export default async function AdminPage() {
   if (email !== ADMIN_EMAIL) redirect('/app')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (getSupabase() as any)
+  const { data, error } = await (getSupabaseAdmin() as any)
     .from('feedback')
     .select('id, email, message, created_at')
     .order('created_at', { ascending: false })

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   if (!jd_history_id) return NextResponse.json({ error: 'Missing jd_history_id' }, { status: 400 })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const sb = getSupabase() as any
+  const sb = getSupabaseAdmin() as any
 
   // Verify ownership
   const { data: jd } = await sb

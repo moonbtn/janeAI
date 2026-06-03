@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim()).filter(Boolean)
 
@@ -16,7 +16,7 @@ export async function GET() {
   const isAdmin = ADMIN_EMAILS.some((adminEmail) => userEmails.includes(adminEmail))
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (getSupabase() as any)
+  let query = (getSupabaseAdmin() as any)
     .from('jd_history')
     .select('id, job_title, created_at, user_id, status')
     .order('created_at', { ascending: false })

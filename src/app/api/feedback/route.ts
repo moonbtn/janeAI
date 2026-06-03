@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   const { message, email } = await req.json()
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabase() as any)
+  const { error } = await (getSupabaseAdmin() as any)
     .from('feedback')
     .insert({ user_id: email ?? 'anonymous', email: email ?? null, message: message.trim() })
 

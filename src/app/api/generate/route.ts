@@ -4,7 +4,7 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -61,7 +61,7 @@ Viết tự nhiên, chuyên nghiệp, hấp dẫn ứng viên. Không bịa thô
     const generatedJd = message.content[0].type === 'text' ? message.content[0].text : ''
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: inserted, error } = await (getSupabase() as any)
+    const { data: inserted, error } = await (getSupabaseAdmin() as any)
       .from('jd_history')
       .insert({
         job_title: jobTitle,
