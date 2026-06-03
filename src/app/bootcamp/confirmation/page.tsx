@@ -2,9 +2,14 @@
 const BANK_NAME = process.env.NEXT_PUBLIC_BOOTCAMP_BANK_NAME ?? 'VCB'
 const BANK_ACCOUNT = process.env.NEXT_PUBLIC_BOOTCAMP_BANK_ACCOUNT ?? ''
 const BANK_HOLDER = process.env.NEXT_PUBLIC_BOOTCAMP_BANK_HOLDER ?? ''
+const EARLY_BIRD_DEADLINE = new Date('2025-06-20T23:59:59+07:00')
 
 export default function BootcampConfirmation() {
-  const qrUrl = `https://img.vietqr.io/image/${BANK_NAME}-${BANK_ACCOUNT}-compact2.png?amount=4000000&addInfo=BOOTCAMP&accountName=${encodeURIComponent(BANK_HOLDER)}`
+  const isEarlyBird = new Date() < EARLY_BIRD_DEADLINE
+  const price = isEarlyBird ? 4_000_000 : 5_000_000
+  const priceLabel = isEarlyBird ? '4.000.000đ' : '5.000.000đ'
+
+  const qrUrl = `https://img.vietqr.io/image/${BANK_NAME}-${BANK_ACCOUNT}-compact2.png?amount=${price}&addInfo=BOOTCAMP&accountName=${encodeURIComponent(BANK_HOLDER)}`
 
   return (
     <main style={{ fontFamily: 'var(--font-inter, Inter, sans-serif)', background: '#fafaf7', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
@@ -27,11 +32,17 @@ export default function BootcampConfirmation() {
             <div><span style={{ color: '#6b6b6b' }}>Ngân hàng: </span><strong>{BANK_NAME}</strong></div>
             <div><span style={{ color: '#6b6b6b' }}>Số tài khoản: </span><strong>{BANK_ACCOUNT}</strong></div>
             <div><span style={{ color: '#6b6b6b' }}>Chủ tài khoản: </span><strong>{BANK_HOLDER}</strong></div>
-            <div><span style={{ color: '#6b6b6b' }}>Số tiền: </span><strong>4.000.000đ</strong> <span style={{ fontSize: '12px', background: '#4a90e2', color: '#fff', padding: '2px 7px', marginLeft: '4px' }}>EARLY BIRD</span></div>
+            <div>
+              <span style={{ color: '#6b6b6b' }}>Số tiền: </span>
+              <strong>{priceLabel}</strong>
+              {isEarlyBird && (
+                <span style={{ fontSize: '12px', background: '#4a90e2', color: '#fff', padding: '2px 7px', marginLeft: '4px' }}>EARLY BIRD</span>
+              )}
+            </div>
             <div><span style={{ color: '#6b6b6b' }}>Nội dung: </span><strong>BOOTCAMP [Họ tên bạn]</strong></div>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrUrl} alt="QR chuyển khoản" style={{ width: '180px', height: '180px' }} />
+          <img src={qrUrl} alt="QR chuyển khoản" style={{ maxWidth: '180px', height: 'auto' }} />
         </div>
 
         <p style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: 1.6 }}>

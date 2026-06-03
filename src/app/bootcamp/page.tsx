@@ -1,8 +1,9 @@
 import RegistrationForm from './RegistrationForm'
 
-const isEarlyBird = new Date() < new Date('2025-06-20T23:59:59+07:00')
+const EARLY_BIRD_DEADLINE = new Date('2025-06-20T23:59:59+07:00')
 
 export default function BootcampPage() {
+  const isEarlyBird = new Date() < EARLY_BIRD_DEADLINE
   return (
     <>
       <style>{`
