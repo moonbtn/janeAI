@@ -416,7 +416,7 @@ export default function Home() {
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <div>
             <h2 className="font-semibold text-gray-800 mb-1">Bạn đang tuyển vị trí gì?</h2>
-            <p className="text-xs text-gray-400">Nếu đã có JD thì paste vào đây — Jane sẽ gợi ý bước tiếp theo. Chưa có JD thì dùng phần gợi ý bên dưới.</p>
+            <p className="text-xs text-gray-400">Paste JD vào đây — Jane sẽ hướng dẫn từng bước. Chưa có JD thì dùng phần gợi ý bên dưới.</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Tên vị trí</label>
