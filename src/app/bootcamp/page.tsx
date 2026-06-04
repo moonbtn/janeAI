@@ -1,6 +1,6 @@
 import RegistrationForm from './RegistrationForm'
 
-const EARLY_BIRD_DEADLINE = new Date('2025-06-20T23:59:59+07:00')
+const EARLY_BIRD_DEADLINE = new Date('2026-06-20T23:59:59+07:00')
 
 export default function BootcampPage() {
   const isEarlyBird = new Date() < EARLY_BIRD_DEADLINE
@@ -9,8 +9,8 @@ export default function BootcampPage() {
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #fafaf7; }
-        .session-topics li { list-style: none; padding-left: 20px; position: relative; margin-bottom: 8px; font-size: 14px; color: #444; line-height: 1.5; }
-        .session-topics li::before { content: '—'; position: absolute; left: 0; color: #aaa; }
+        .session-topics li { list-style: none; padding-left: 20px; position: relative; margin-bottom: 8px; font-size: 14px; color: #b0c0d8; line-height: 1.5; }
+        .session-topics li::before { content: '—'; position: absolute; left: 0; color: #6b8abf; }
         .faq-item { border-top: 1px solid #e5e5e0; padding: 20px 0; }
         .faq-item:last-child { border-bottom: 1px solid #e5e5e0; }
         @media (max-width: 640px) {
@@ -30,6 +30,7 @@ export default function BootcampPage() {
           background: '#fafaf7', zIndex: 100,
         }}>
           <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+            <img src="/logo-oac.png" alt="OAC" style={{ height: '20px', objectFit: 'contain' }} />
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e2a47', letterSpacing: '0.05em', textTransform: 'uppercase' }}>OAC Reskilling</span>
             <span style={{ color: '#e5e5e0', fontSize: '16px' }}>×</span>
             <span style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: '16px', fontWeight: 600, color: '#111' }}>
@@ -48,13 +49,6 @@ export default function BootcampPage() {
       {/* HERO */}
       <section style={{ background: '#1e2a47', color: '#fff', padding: '72px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          {/* Cobrand badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <span style={{ color: '#4a90e2', fontWeight: 700 }}>OAC Reskilling</span>
-            <span style={{ color: '#6b8abf' }}>×</span>
-            <span style={{ color: '#c0cde0' }}>Harari.ai</span>
-          </div>
-
           {/* Kicker */}
           <p style={{ fontSize: '13px', color: '#7a95bc', letterSpacing: '0.05em', marginBottom: '20px', textTransform: 'uppercase' }}>
             Vibe Product &amp; Coding Bootcamp · Offline TP.HCM · 27–28/6/2025
@@ -62,13 +56,13 @@ export default function BootcampPage() {
 
           {/* H1 */}
           <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 700, lineHeight: 1.2, marginBottom: '20px', maxWidth: '720px' }}>
-            2 buổi. 1 sản phẩm thật. Và{' '}
-            <em style={{ color: '#4a90e2', fontStyle: 'normal' }}>tư duy để xây cái tiếp theo.</em>
+            2 buổi. 1 sản phẩm thật. Và tư duy để{' '}
+            <em style={{ color: '#4a90e2', fontStyle: 'normal' }}>xây cái tiếp theo</em>.
           </h1>
 
           {/* Sub */}
           <p style={{ fontSize: '16px', color: '#b0c0d8', marginBottom: '40px', maxWidth: '540px', lineHeight: 1.6 }}>
-            Không cần biết code. Chỉ cần tò mò — và muốn bắt đầu.
+            Không cần biết code. Chỉ cần tò mò và muốn bắt đầu.
           </p>
 
           {/* Meta bar */}
@@ -79,7 +73,11 @@ export default function BootcampPage() {
               {
                 label: 'Học phí',
                 value: isEarlyBird
-                  ? <><s style={{ opacity: 0.6 }}>5.000.000đ</s> <span style={{ color: '#4a90e2', fontWeight: 700 }}>4.000.000đ EARLY BIRD</span></>
+                  ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <s style={{ opacity: 0.45, fontWeight: 400 }}>5.000.000đ</s>
+                      <span style={{ fontWeight: 700 }}>4.000.000đ</span>
+                      <span style={{ background: '#4a90e2', color: '#fff', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', padding: '3px 8px', textTransform: 'uppercase' }}>Early Bird</span>
+                    </span>
                   : '5.000.000đ',
               },
               { label: 'Số lượng', value: 'Tối đa 25 học viên' },
@@ -93,7 +91,7 @@ export default function BootcampPage() {
 
           {/* CTAs */}
           <div className="hero-ctas" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <a href="#dang-ky" style={{ background: '#4a90e2', color: '#fff', padding: '14px 28px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none', fontWeight: 600 }}>
+            <a href="#dang-ky" style={{ background: '#fff', color: '#1e2a47', padding: '14px 28px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none', fontWeight: 700 }}>
               Đăng ký giữ chỗ →
             </a>
             <a href="#chuong-trinh" style={{ border: '1px solid #4a6a9c', color: '#b0c0d8', padding: '14px 28px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none' }}>
@@ -189,7 +187,7 @@ export default function BootcampPage() {
                 Viền Trần
               </h3>
               <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.7 }}>
-                Founder của Harari.ai và Filum AI — hai sản phẩm AI được build bằng chính những công cụ sẽ được dạy trong bootcamp này. Viền đã dạy hơn 500 người về AI và product thinking trong 2 năm qua.
+                Founder Harari.ai và Filum AI, developer 12 năm, build AI products hàng ngày. Đã mentor hơn 30 doanh nghiệp Việt Nam ứng dụng AI vào thực tế.
               </p>
             </div>
             {/* Card 2 */}
@@ -201,7 +199,7 @@ export default function BootcampPage() {
                 Jane Nguyễn
               </h3>
               <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.7 }}>
-                Học trò của Viền — và là người đã dùng những gì học được để build các sản phẩm AI trong nội bộ OAC. Landing page này là một trong những thứ Jane tự build. Jane sẽ đồng hành cùng học viên xuyên suốt 2 buổi.
+                Học trò của thầy Viển — đã học và tự build được một vài sản phẩm AI. Mang góc nhìn của người mới bắt đầu để hỗ trợ và đồng hành cùng học viên trong suốt bootcamp.
               </p>
             </div>
           </div>
@@ -282,9 +280,15 @@ export default function BootcampPage() {
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111', marginBottom: '10px' }}>
                 Học phí và ưu đãi?
               </h3>
-              <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.7 }}>
-                5.000.000đ / học viên. Early bird 4.000.000đ cho đến hết ngày 20/6. Refund 500.000đ nếu sau buổi 1 bạn cảm thấy không phù hợp.
+              <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.7, marginBottom: '12px' }}>
+                5.000.000đ / học viên. Early bird 4.000.000đ cho đến hết ngày 20/6.
               </p>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', background: '#f0f7f0', border: '1px solid #b8ddb8', borderLeft: '3px solid #3a9a3a', padding: '12px 16px', borderRadius: '2px' }}>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>💸</span>
+                <p style={{ fontSize: '14px', color: '#2a5a2a', lineHeight: 1.6, margin: 0 }}>
+                  <strong>Hoàn 500.000đ</strong> nếu bạn post sản phẩm và review khoá học trên Facebook sau khi kết thúc — nghĩa là học xong làm được việc thật, bạn chỉ trả 3.500.000đ.
+                </p>
+              </div>
             </div>
           </div>
         </div>
