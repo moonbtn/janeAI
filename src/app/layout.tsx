@@ -32,7 +32,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
-        <ClerkProvider>
+        <ClerkProvider signInFallbackRedirectUrl="/app" signUpFallbackRedirectUrl="/app">
           {children}
         </ClerkProvider>
       </body>
