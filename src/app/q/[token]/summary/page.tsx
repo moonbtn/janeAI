@@ -37,6 +37,7 @@ function formatSubmittedAt(iso: string): string {
     month: '2-digit',
     year: 'numeric',
     weekday: 'long',
+    timeZone: 'Asia/Ho_Chi_Minh',
   })
 }
 
