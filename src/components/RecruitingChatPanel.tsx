@@ -168,9 +168,14 @@ export default function RecruitingChatPanel() {
           className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           aria-label="Mở AI chat với Jane"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-base font-bold">
+          <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-base font-bold">
             J
+            <span
+              className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-indigo-600 bg-emerald-400"
+              aria-hidden="true"
+            />
           </span>
+          <span className="sr-only">Jane đang online</span>
           <span>Chat với Jane</span>
           {unread && <span className="h-2 w-2 rounded-full bg-amber-300" />}
         </button>
