@@ -25,13 +25,6 @@ function textFromMessage(message: RecruitingUIMessage) {
     .join('\n')
 }
 
-function topicLabel(topic: string) {
-  return topic
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
 function chatErrorLabel(error: Error | undefined) {
   const message = error?.message ?? ''
   if (message.includes('OPENAI_API_KEY')) {
@@ -132,8 +125,6 @@ export default function RecruitingChatPanel() {
   })
 
   const isStreaming = status === 'submitted' || status === 'streaming'
-  const latestAssistant = [...messages].reverse().find((message) => message.role === 'assistant')
-  const latestSources = latestAssistant?.metadata?.sources ?? []
   const unread = messages.length > 0 && !open
 
   async function handleSend() {
@@ -189,10 +180,10 @@ export default function RecruitingChatPanel() {
         <div className="fixed bottom-5 right-5 z-50 flex h-[min(680px,calc(100vh-40px))] w-[min(420px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
           <div className="flex items-start justify-between gap-4 border-b border-gray-100 bg-[#1B2B6E] px-4 py-4 text-white">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">AI chat với Jane</p>
-              <h2 className="text-base font-semibold leading-tight">Hỏi Jane về tuyển dụng</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">Chat với Jane AI</p>
+              <h2 className="text-base font-semibold leading-tight">Có thắc mắc gì chưa giải quyết được?</h2>
               <p className="mt-1 text-xs text-white/70">
-                Sourcing, candidate persona, job post, interview, offer risk.
+                Hỏi thẳng mình nè.
               </p>
             </div>
             <button
@@ -206,10 +197,14 @@ export default function RecruitingChatPanel() {
 
           <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-3">
             {messages.length === 0 ? (
-              <div className="space-y-2">
-                <p className="px-1 text-xs text-gray-500">
-                  Chọn câu hỏi mẫu hoặc nhập câu hỏi của bạn.
-                </p>
+              <div className="space-y-3">
+                <div className="mr-8 rounded-xl border border-gray-100 bg-white px-3 py-3 text-sm text-gray-700">
+                  <p className="font-semibold text-gray-900">Hello!</p>
+                  <p className="mt-1 text-gray-600">
+                    Có gì đang kẹt trong tuyển dụng thì hỏi Jane nha.
+                  </p>
+                </div>
+                <p className="px-1 text-xs text-gray-500">Chọn câu hỏi mẫu hoặc nhập câu hỏi của bạn.</p>
                 {[
                   'Tôi nên dùng LinkedIn hay Facebook cho senior role?',
                   'JD này có quá nhiều must-have không?',
@@ -246,19 +241,6 @@ export default function RecruitingChatPanel() {
           </div>
 
           <div className="border-t border-gray-100 bg-white p-3 space-y-3">
-            {latestSources.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {latestSources.map((source) => (
-                  <span
-                    key={source.chunkId}
-                    className="text-[11px] text-gray-500 bg-gray-100 rounded-full px-2 py-1"
-                  >
-                    {topicLabel(source.topic)}
-                  </span>
-                ))}
-              </div>
-            )}
-
             {error && (
               <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">
                 {chatErrorLabel(error)}

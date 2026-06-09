@@ -1,5 +1,9 @@
 import { getSupabaseAdmin } from '@/lib/supabase'
-import type { NormalizedLeadPayload, RecruitingChatMessageInsert } from './persistence'
+import {
+  buildConversationInsertPayload,
+  type NormalizedLeadPayload,
+  type RecruitingChatMessageInsert,
+} from './persistence'
 
 type SupabaseAny = ReturnType<typeof getSupabaseAdmin> & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,24 +18,36 @@ function db(): SupabaseAny {
 export async function getOrCreateRecruitingConversation({
   conversationId,
   userId,
+  userEmail,
 }: {
   conversationId?: string | null
   userId: string
+  userEmail?: string | null
 }): Promise<string> {
   if (conversationId) {
     const { data, error } = await (db().from('recruiting_chat_conversations') as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .select('id')
+      .select('id, user_email')
       .eq('id', conversationId)
       .eq('user_id', userId)
       .maybeSingle()
 
     if (error) throw error
-    if (data?.id) return String(data.id)
+    if (data?.id) {
+      if (userEmail?.trim() && !data.user_email) {
+        const { error: updateError } = await (db().from('recruiting_chat_conversations') as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+          .update({ user_email: userEmail.trim() })
+          .eq('id', data.id)
+          .eq('user_id', userId)
+
+        if (updateError) throw updateError
+      }
+      return String(data.id)
+    }
   }
 
   const id = crypto.randomUUID()
   const { data, error } = await (db().from('recruiting_chat_conversations') as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-    .insert({ id, user_id: userId })
+    .insert(buildConversationInsertPayload({ id, userId, userEmail }))
     .select('id')
     .maybeSingle()
 

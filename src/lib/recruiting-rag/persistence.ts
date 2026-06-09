@@ -10,6 +10,22 @@ export type RecruitingChatMessageInsert = {
   sources: RetrievedSourceMetadata[]
 }
 
+export function buildConversationInsertPayload({
+  id,
+  userId,
+  userEmail,
+}: {
+  id: string
+  userId: string
+  userEmail?: string | null
+}) {
+  return {
+    id,
+    user_id: userId,
+    user_email: userEmail?.trim() || null,
+  }
+}
+
 export function buildUserPersistencePayload({
   conversationId,
   content,

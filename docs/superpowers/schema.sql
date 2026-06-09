@@ -27,6 +27,7 @@ create index idx_qa_questionnaire_id on questionnaire_answers(questionnaire_id);
 create table if not exists recruiting_chat_conversations (
   id uuid primary key default gen_random_uuid(),
   user_id text not null,
+  user_email text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -67,6 +68,9 @@ grant select, insert, update, delete on table recruiting_leads to service_role;
 
 create index if not exists idx_recruiting_chat_conversations_user_updated
   on recruiting_chat_conversations(user_id, updated_at desc);
+create index if not exists idx_recruiting_chat_conversations_user_email
+  on recruiting_chat_conversations(user_email)
+  where user_email is not null;
 create index if not exists idx_recruiting_chat_messages_conversation_created
   on recruiting_chat_messages(conversation_id, created_at);
 create index if not exists idx_recruiting_leads_user_created

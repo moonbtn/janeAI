@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import {
   convertToModelMessages,
   streamText,
@@ -46,13 +46,15 @@ function getMessageText(message: UIMessage): string {
 
 async function getConversationIdSafely({
   conversationId,
+  userEmail,
   userId,
 }: {
   conversationId?: string | null
+  userEmail?: string | null
   userId: string
 }) {
   try {
-    return await getOrCreateRecruitingConversation({ conversationId, userId })
+    return await getOrCreateRecruitingConversation({ conversationId, userId, userEmail })
   } catch (error) {
     console.error('Recruiting chat persistence unavailable:', error)
     return conversationId ?? crypto.randomUUID()
@@ -74,6 +76,8 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const user = await currentUser()
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses[0]?.emailAddress ?? null
 
   const { allowed } = await checkRateLimitSafely(userId, 'recruiting-chat')
   if (!allowed) {
@@ -110,6 +114,7 @@ export async function POST(request: Request) {
   try {
     const conversationId = await getConversationIdSafely({
       conversationId: body.conversationId,
+      userEmail,
       userId,
     })
     await saveRecruitingChatMessageSafely(

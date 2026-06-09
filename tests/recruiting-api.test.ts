@@ -3,12 +3,28 @@ import { describe, it } from 'node:test'
 
 import {
   buildAssistantPersistencePayload,
+  buildConversationInsertPayload,
   buildUserPersistencePayload,
   normalizeLeadPayload,
 } from '@/lib/recruiting-rag/persistence'
 import { checkRateLimitSafely, getRecruitingChatModelConfig } from '@/lib/recruiting-rag/runtime'
 
 describe('recruiting chat persistence payloads', () => {
+  it('builds conversation insert payloads with Clerk email when available', () => {
+    assert.deepEqual(
+      buildConversationInsertPayload({
+        id: 'conversation-1',
+        userId: 'user-1',
+        userEmail: ' employer@example.com ',
+      }),
+      {
+        id: 'conversation-1',
+        user_id: 'user-1',
+        user_email: 'employer@example.com',
+      }
+    )
+  })
+
   it('builds user message persistence payloads from plain text', () => {
     assert.deepEqual(
       buildUserPersistencePayload({
