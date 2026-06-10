@@ -3,6 +3,8 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 const DAILY_LIMITS: Record<string, number> = {
   generate: 10,
   'post-job/generate': 20,
+  'recruiting-chat': 50,
+  'recruiting-leads': 10,
 }
 
 export async function checkRateLimit(

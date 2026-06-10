@@ -81,8 +81,11 @@ export default function PostingCard({ jdHistoryId }: Props) {
   }, [jdHistoryId])
 
   useEffect(() => {
-    fetchData()
-    fetchAccounts()
+    const timer = setTimeout(() => {
+      fetchData()
+      fetchAccounts()
+    }, 0)
+    return () => clearTimeout(timer)
   }, [fetchData, fetchAccounts])
 
   function handleContentChange(campaignId: string, content: string) {

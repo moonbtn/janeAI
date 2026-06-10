@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 let _client: ReturnType<typeof createClient> | null = null
+let _adminClient: ReturnType<typeof createClient> | null = null
 
 export function getSupabase() {
   if (!_client) {
@@ -53,10 +54,13 @@ export type QuestionnaireAnswer = {
 }
 
 export function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  if (!_adminClient) {
+    _adminClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  }
+  return _adminClient
 }
 
 export type PostCampaign = {
