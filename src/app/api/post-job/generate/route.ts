@@ -393,7 +393,7 @@ export async function POST(req: NextRequest) {
       let result: { job_type: string; seniority: string; channel_recommendations: ChannelRecommendation[] }
       try {
         result = JSON.parse(clean)
-      } catch (e) {
+      } catch {
         console.error('Recommend JSON parse failed. Raw:', raw)
         return NextResponse.json({ error: 'Phân tích kênh thất bại' }, { status: 500 })
       }

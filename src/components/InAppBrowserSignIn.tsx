@@ -19,7 +19,10 @@ export default function InAppBrowserSignIn({ children, className }: Props) {
   const [showTip, setShowTip] = useState(false)
 
   useEffect(() => {
-    setInApp(isInAppBrowser())
+    const timer = setTimeout(() => {
+      setInApp(isInAppBrowser())
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   if (!inApp) {

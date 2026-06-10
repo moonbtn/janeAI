@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { allowed, remaining } = await checkRateLimit(userId, 'generate')
+  const { allowed } = await checkRateLimit(userId, 'generate')
   if (!allowed) {
     return NextResponse.json(
       { error: 'Bạn đã đạt giới hạn 10 lần tạo JD mỗi ngày. Thử lại vào ngày mai.' },

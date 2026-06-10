@@ -7,6 +7,7 @@ import FeedbackWidget from '@/components/FeedbackWidget'
 import PostingCard from '@/components/PostingCard'
 import QuestionnaireSummary from '@/components/QuestionnaireSummary'
 import type { QuestionnaireSummaryData } from '@/components/QuestionnaireSummary'
+import RecruitingChatPanel from '@/components/RecruitingChatPanel'
 
 export default function Home() {
   // Primary state
@@ -89,7 +90,10 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    fetchHistory()
+    const timer = setTimeout(() => {
+      fetchHistory()
+    }, 0)
+    return () => clearTimeout(timer)
   }, [fetchHistory])
 
   useEffect(() => {
@@ -632,6 +636,7 @@ export default function Home() {
       </div>
     </div>
     <FeedbackWidget />
+    <RecruitingChatPanel />
     </>
   )
 }

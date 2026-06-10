@@ -36,14 +36,14 @@ export default function FeedbackWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-50 bg-white border border-gray-200 text-gray-500 text-xs font-medium px-3.5 py-2 rounded-full shadow-md hover:shadow-lg hover:text-gray-700 transition-all"
+        className="fixed bottom-5 left-5 z-40 bg-white border border-gray-200 text-gray-500 text-xs font-medium px-3.5 py-2 rounded-full shadow-md hover:shadow-lg hover:text-gray-700 transition-all"
       >
         Góp ý
       </button>
 
       {/* Popup */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end p-5" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-start p-5" onClick={() => setOpen(false)}>
           <div
             className="bg-white rounded-2xl border border-gray-200 shadow-xl w-80 p-4 space-y-3"
             onClick={(e) => e.stopPropagation()}
