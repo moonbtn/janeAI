@@ -5,6 +5,7 @@ import {
   buildAssistantPersistencePayload,
   buildConversationInsertPayload,
   buildUserPersistencePayload,
+  LeadValidationError,
   normalizeLeadPayload,
 } from '@/lib/recruiting-rag/persistence'
 import { checkRateLimitSafely, getRecruitingChatModelConfig } from '@/lib/recruiting-rag/runtime'
@@ -101,6 +102,16 @@ describe('recruiting lead normalization', () => {
         }),
       /valid email/
     )
+  })
+
+  it('throws LeadValidationError so the API can tell client mistakes from server failures', () => {
+    const isValidationError = (error: unknown) => error instanceof LeadValidationError
+    assert.throws(() => normalizeLeadPayload({ email: 'not-an-email' }), isValidationError)
+    assert.throws(
+      () => normalizeLeadPayload({ email: 'a@b.co', name: 'x'.repeat(121) }),
+      isValidationError
+    )
+    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co', company: 42 }), isValidationError)
   })
 })
 

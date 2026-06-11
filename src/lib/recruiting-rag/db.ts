@@ -87,8 +87,8 @@ export async function saveRecruitingLead({
       },
     })
     .select('id')
-    .maybeSingle()
+    .single()
 
   if (error) throw error
-  return data?.id ? String(data.id) : null
+  return String(data.id)
 }

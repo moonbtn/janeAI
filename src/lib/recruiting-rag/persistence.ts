@@ -76,19 +76,21 @@ export type NormalizedLeadPayload = {
   conversationId: string | null
 }
 
+export class LeadValidationError extends Error {}
+
 function nullableTrimmed(value: unknown, maxLength: number, field: string): string | null {
   if (value == null) return null
-  if (typeof value !== 'string') throw new Error(`${field} must be a string`)
+  if (typeof value !== 'string') throw new LeadValidationError(`${field} must be a string`)
   const trimmed = value.trim()
   if (!trimmed) return null
-  if (trimmed.length > maxLength) throw new Error(`${field} is too long`)
+  if (trimmed.length > maxLength) throw new LeadValidationError(`${field} is too long`)
   return trimmed
 }
 
 export function normalizeLeadPayload(payload: LeadInput): NormalizedLeadPayload {
   const email = nullableTrimmed(payload.email, 254, 'email')
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error('Please enter a valid email address')
+    throw new LeadValidationError('Please enter a valid email address')
   }
 
   return {
