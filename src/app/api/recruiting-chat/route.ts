@@ -103,7 +103,7 @@ async function saveRecruitingChatMessageSafely(
 export async function POST(request: Request) {
   const { userId, sessionClaims } = await auth()
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Bạn cần đăng nhập lại trước khi chat với Jane.' }, { status: 401 })
   }
   const userEmail = getEmailFromSessionClaims(sessionClaims) ?? (await getCurrentUserEmailSafely())
 

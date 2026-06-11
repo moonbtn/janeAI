@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
+import { chatErrorLabel } from '@/lib/recruiting-rag/chat-errors'
 import { parseChatMarkdown, type ChatInline } from '@/lib/recruiting-rag/chat-markdown'
 
 type RecruitingMessageMetadata = {
@@ -23,23 +24,6 @@ function textFromMessage(message: RecruitingUIMessage) {
     .filter((part) => part.type === 'text')
     .map((part) => part.text)
     .join('\n')
-}
-
-function chatErrorLabel(error: Error | undefined) {
-  const message = error?.message ?? ''
-  if (message.includes('OPENAI_API_KEY')) {
-    return 'Jane chưa trả lời được vì thiếu OPENAI_API_KEY trên server.'
-  }
-  if (message.includes('ANTHROPIC_API_KEY') || message.includes('503')) {
-    return 'Jane chưa trả lời được vì thiếu ANTHROPIC_API_KEY trên server.'
-  }
-  if (message.includes('401')) {
-    return 'Bạn cần đăng nhập lại trước khi chat với Jane.'
-  }
-  if (message.includes('429')) {
-    return 'Bạn đã đạt giới hạn chat hôm nay.'
-  }
-  return 'Jane chưa trả lời được. Kiểm tra API key hoặc server logs rồi thử lại nhé.'
 }
 
 function InlineText({ parts }: { parts: ChatInline[] }) {
