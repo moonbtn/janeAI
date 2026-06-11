@@ -43,7 +43,7 @@ export default function FeedbackWidget() {
 
       {/* Popup */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-start p-5" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-[60] flex items-end justify-start p-5" onClick={() => setOpen(false)}>
           <div
             className="bg-white rounded-2xl border border-gray-200 shadow-xl w-80 p-4 space-y-3"
             onClick={(e) => e.stopPropagation()}
