@@ -79,6 +79,7 @@ describe('recruiting lead normalization', () => {
     assert.deepEqual(
       normalizeLeadPayload({
         email: ' employer@example.com ',
+        phone: '091 234-5678',
         name: ' Jane ',
         company: '',
         hiringNeed: ' Tuyển Data Scientist ',
@@ -86,6 +87,7 @@ describe('recruiting lead normalization', () => {
       }),
       {
         email: 'employer@example.com',
+        phone: '0912345678',
         name: 'Jane',
         company: null,
         hiringNeed: 'Tuyển Data Scientist',
@@ -108,10 +110,39 @@ describe('recruiting lead normalization', () => {
     const isValidationError = (error: unknown) => error instanceof LeadValidationError
     assert.throws(() => normalizeLeadPayload({ email: 'not-an-email' }), isValidationError)
     assert.throws(
-      () => normalizeLeadPayload({ email: 'a@b.co', name: 'x'.repeat(121) }),
+      () => normalizeLeadPayload({ email: 'a@b.co', phone: '0912345678', name: 'x'.repeat(121) }),
       isValidationError
     )
-    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co', company: 42 }), isValidationError)
+    assert.throws(
+      () => normalizeLeadPayload({ email: 'a@b.co', phone: '0912345678', company: 42 }),
+      isValidationError
+    )
+  })
+
+  it('normalizes Vietnamese phone numbers and strips separators', () => {
+    assert.equal(
+      normalizeLeadPayload({ email: 'a@b.co', phone: '091 234-5678' }).phone,
+      '0912345678'
+    )
+    assert.equal(
+      normalizeLeadPayload({ email: 'a@b.co', phone: '(024) 3825.1234' }).phone,
+      '02438251234'
+    )
+  })
+
+  it('accepts international phone format with leading +', () => {
+    assert.equal(
+      normalizeLeadPayload({ email: 'a@b.co', phone: '+84 91 234 5678' }).phone,
+      '+84912345678'
+    )
+  })
+
+  it('rejects missing or malformed phone numbers with LeadValidationError', () => {
+    const isValidationError = (error: unknown) => error instanceof LeadValidationError
+    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co' }), isValidationError)
+    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co', phone: '12345' }), isValidationError)
+    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co', phone: 'gọi em nhé' }), isValidationError)
+    assert.throws(() => normalizeLeadPayload({ email: 'a@b.co', phone: 42 }), isValidationError)
   })
 })
 

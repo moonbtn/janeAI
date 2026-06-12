@@ -62,6 +62,7 @@ export function buildAssistantPersistencePayload({
 
 type LeadInput = {
   email?: unknown
+  phone?: unknown
   name?: unknown
   company?: unknown
   hiringNeed?: unknown
@@ -70,6 +71,7 @@ type LeadInput = {
 
 export type NormalizedLeadPayload = {
   email: string
+  phone: string
   name: string | null
   company: string | null
   hiringNeed: string | null
@@ -87,6 +89,17 @@ function nullableTrimmed(value: unknown, maxLength: number, field: string): stri
   return trimmed
 }
 
+function normalizePhone(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new LeadValidationError('Please enter a phone number')
+  }
+  const cleaned = value.replace(/[\s().-]/g, '')
+  if (!/^(0\d{9,10}|\+\d{10,12})$/.test(cleaned)) {
+    throw new LeadValidationError('Please enter a valid phone number')
+  }
+  return cleaned
+}
+
 export function normalizeLeadPayload(payload: LeadInput): NormalizedLeadPayload {
   const email = nullableTrimmed(payload.email, 254, 'email')
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -95,6 +108,7 @@ export function normalizeLeadPayload(payload: LeadInput): NormalizedLeadPayload 
 
   return {
     email,
+    phone: normalizePhone(payload.phone),
     name: nullableTrimmed(payload.name, 120, 'name'),
     company: nullableTrimmed(payload.company, 120, 'company'),
     hiringNeed: nullableTrimmed(payload.hiringNeed, 2000, 'hiringNeed'),
