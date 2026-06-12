@@ -78,6 +78,7 @@ export async function saveRecruitingLead({
       user_id: userId,
       conversation_id: payload.conversationId,
       email: payload.email,
+      phone: payload.phone,
       name: payload.name,
       company: payload.company,
       hiring_need: payload.hiringNeed,
