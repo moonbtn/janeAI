@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { chatErrorLabel } from '@/lib/recruiting-rag/chat-errors'
@@ -86,10 +87,16 @@ export default function RecruitingChatPanel() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [leadPhone, setLeadPhone] = useState('')
   const [leadEmail, setLeadEmail] = useState('')
   const [leadName, setLeadName] = useState('')
   const [leadCompany, setLeadCompany] = useState('')
   const [leadStatus, setLeadStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
+  const { user } = useUser()
+  const clerkEmail = user?.emailAddresses?.[0]?.emailAddress ?? ''
+  // Prefill from Clerk but let the user type their own; server requires an email either way.
+  const effectiveEmail = leadEmail || clerkEmail
 
   const transport = useMemo(
     () =>
@@ -126,17 +133,19 @@ export default function RecruitingChatPanel() {
   }
 
   async function handleLeadSubmit() {
-    if (!leadEmail.trim() || leadStatus === 'sending') return
+    if (!leadPhone.trim() || leadStatus === 'sending') return
     setLeadStatus('sending')
+    const lastUserMessage = [...messages].reverse().find((message) => message.role === 'user')
     try {
       const res = await fetch('/api/recruiting-leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: leadEmail,
+          phone: leadPhone,
+          email: effectiveEmail,
           name: leadName,
           company: leadCompany,
-          hiringNeed: input,
+          hiringNeed: lastUserMessage ? textFromMessage(lastUserMessage) : null,
           conversationId,
         }),
       })
@@ -273,8 +282,15 @@ export default function RecruitingChatPanel() {
               </summary>
               <div className="mt-2 space-y-2">
                 <input
+                  type="tel"
+                  value={leadPhone}
+                  onChange={(event) => setLeadPhone(event.target.value)}
+                  placeholder="Số điện thoại (09xx xxx xxx)"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <input
                   type="email"
-                  value={leadEmail}
+                  value={effectiveEmail}
                   onChange={(event) => setLeadEmail(event.target.value)}
                   placeholder="Email"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -298,7 +314,7 @@ export default function RecruitingChatPanel() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleLeadSubmit}
-                    disabled={!leadEmail.trim() || leadStatus === 'sending'}
+                    disabled={!leadPhone.trim() || leadStatus === 'sending'}
                     className="px-3 py-2 rounded-lg border border-indigo-200 text-indigo-600 text-xs font-medium hover:bg-indigo-50 disabled:opacity-50"
                   >
                     {leadStatus === 'sending' ? 'Đang lưu...' : 'Gửi thông tin'}
