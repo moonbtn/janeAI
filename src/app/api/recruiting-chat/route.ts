@@ -13,7 +13,14 @@ import {
   buildAssistantPersistencePayload,
   buildUserPersistencePayload,
 } from '@/lib/recruiting-rag/persistence'
-import { buildRecruitingSystemPrompt } from '@/lib/recruiting-rag/prompt'
+import {
+  buildRecruitingContextBlock,
+  buildRecruitingSystemPrompt,
+} from '@/lib/recruiting-rag/prompt'
+import {
+  addCacheBreakpointToLastAssistantMessage,
+  appendContextToLatestUserMessage,
+} from '@/lib/recruiting-rag/chat-messages'
 import {
   buildRetrievalQuery,
   prepareRagForChat,
@@ -156,13 +163,20 @@ export async function POST(request: Request) {
     const retrievedResults = retrieveRelevantChunks(retrievalQuery, loadDefaultApprovedChunks(), 4)
     const rag = prepareRagForChat(retrievedResults)
 
+    const modelMessages = addCacheBreakpointToLastAssistantMessage(
+      appendContextToLatestUserMessage(
+        await convertToModelMessages(messages),
+        buildRecruitingContextBlock({
+          retrievedContext: rag.retrievedContext,
+          hasStrongContext: rag.hasStrongContext,
+        })
+      )
+    )
+
     const result = streamText({
       model: getRecruitingChatLanguageModel(modelConfig),
-      system: buildRecruitingSystemPrompt({
-        retrievedContext: rag.retrievedContext,
-        hasStrongContext: rag.hasStrongContext,
-      }),
-      messages: await convertToModelMessages(messages),
+      system: buildRecruitingSystemPrompt(),
+      messages: modelMessages,
       maxOutputTokens: 1200,
       abortSignal: request.signal,
       onError({ error }) {

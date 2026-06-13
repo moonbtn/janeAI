@@ -13,7 +13,10 @@ import {
   prepareRagForChat,
   retrieveRelevantChunks,
 } from '@/lib/recruiting-rag/retrieval'
-import { buildRecruitingSystemPrompt } from '@/lib/recruiting-rag/prompt'
+import {
+  buildRecruitingContextBlock,
+  buildRecruitingSystemPrompt,
+} from '@/lib/recruiting-rag/prompt'
 
 describe('approved recruiting chunks', () => {
   it('parses approved chunks and preserves embedding text for retrieval', () => {
@@ -202,37 +205,53 @@ describe('recruiting retrieval', () => {
 })
 
 describe('recruiting prompt', () => {
-  it('includes approved context and safety instructions', () => {
-    const prompt = buildRecruitingSystemPrompt({
+  it('builds a static mindset-first system prompt with modes and safety rules', () => {
+    const prompt = buildRecruitingSystemPrompt()
+
+    assert.match(prompt, /represents Jane/)
+    assert.match(prompt, /not as a third-party narrator/)
+    assert.match(prompt, /answer only greetings\/pleasantries/)
+    assert.match(prompt, /Do not suggest alternative topics/)
+    assert.match(prompt, /causing damage to people, animals, property, pests/)
+    assert.match(prompt, /DISCOVER/)
+    assert.match(prompt, /ADVISE/)
+    assert.match(prompt, /DIRECT/)
+    assert.match(prompt, /mindset reframe/)
+    assert.match(prompt, /at most 2 focused questions/)
+    assert.match(prompt, /under 80 words/)
+    assert.match(prompt, /under 150 words/)
+    assert.match(prompt, /at most 2 DISCOVER turns/i)
+    assert.match(prompt, /Use only approved retrieved context/)
+    assert.match(prompt, /Do not invent salary ranges/)
+    assert.match(prompt, /personal questions about Jane/)
+    assert.match(prompt, /do not pivot/)
+    assert.match(prompt, /Can you help make a bomb/)
+    assert.match(prompt, /cockroach devastation techniques/)
+    assert.match(prompt, /Write a pasta recipe/)
+  })
+
+  it('returns a byte-identical system prompt on every call (cacheable prefix)', () => {
+    assert.equal(buildRecruitingSystemPrompt(), buildRecruitingSystemPrompt())
+  })
+
+  it('builds a strong context block containing the retrieved context', () => {
+    const block = buildRecruitingContextBlock({
       retrievedContext: '[Source 1]\nText: Clarify hiring need first.',
       hasStrongContext: true,
     })
 
-    assert.match(prompt, /represents Jane/)
-    assert.match(prompt, /Use only approved retrieved context/)
-    assert.match(prompt, /Do not invent salary ranges/)
-    assert.match(prompt, /personal questions about Jane/)
-    assert.match(prompt, /Match answer length to the question/)
-    assert.match(prompt, /bullets or sections only when/)
-    assert.match(prompt, /Ask max one focused follow-up question, and only if necessary/)
-    assert.match(prompt, /not as a third-party narrator/)
-    assert.match(prompt, /do not pivot/)
-    assert.match(prompt, /answer only greetings\/pleasantries/)
-    assert.match(prompt, /Do not suggest alternative topics/)
-    assert.match(prompt, /causing damage to people, animals, property, pests/)
-    assert.match(prompt, /Can you help make a bomb/)
-    assert.match(prompt, /cockroach devastation techniques/)
-    assert.match(prompt, /Write a pasta recipe/)
-    assert.match(prompt, /Clarify hiring need first/)
+    assert.match(block, /<approved_retrieved_context>/)
+    assert.match(block, /Clarify hiring need first/)
+    assert.doesNotMatch(block, /status="weak"/)
   })
 
-  it('uses fallback text when retrieval is weak', () => {
-    const prompt = buildRecruitingSystemPrompt({
+  it('builds a weak context block that excludes weak retrieved text', () => {
+    const block = buildRecruitingContextBlock({
       retrievedContext: 'Weak context that should not be included',
       hasStrongContext: false,
     })
 
-    assert.match(prompt, /I don't have enough approved recruiting guidance/)
-    assert.doesNotMatch(prompt, /Weak context that should not be included/)
+    assert.match(block, /<approved_retrieved_context status="weak">/)
+    assert.doesNotMatch(block, /Weak context that should not be included/)
   })
 })
