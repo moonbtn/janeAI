@@ -27,7 +27,7 @@ Cut token cost per turn and make Jane's replies shorter and more readable, witho
 - ADVISE: `under 150 words` → `under 90 words`. Add a hard rule: lead with the answer; no preamble, no restating the question, no filler sign-offs.
 - DIRECT: `1–3 sentences` → `1–2 sentences`.
 - Add one global brevity line to `CONVERSATION_MODES`: default to the shortest reply that fully answers; never pad.
-- `FEW_SHOT_EXAMPLES`: shorten the long ADVISE example (current ~85 words) to ~50 so the model mirrors brevity. Consolidate the 5 decline/refuse examples → 3 (one Jane-background decline, one harmful refusal, one off-topic refusal). Keeps the cached prefix smaller too.
+- `FEW_SHOT_EXAMPLES`: shorten the long ADVISE example (current ~70 words) to ~40 so the model mirrors brevity. Leave the decline/refuse examples as-is — they sit in the cached prefix (negligible token gain) and are safety-relevant, and tests pin the bomb/cockroach/pasta cases.
 
 ### 2. Output cap — `route.ts`
 
@@ -51,8 +51,8 @@ Cut token cost per turn and make Jane's replies shorter and more readable, witho
 
 ## Testing / verification
 
-- Keep green: `tests/chat-messages.test.ts`, `tests/chat-errors.test.ts`, `tests/chat-markdown.test.ts`.
-- If the caching helper's structure changes, add/adjust its unit test.
+- One existing-test edit required: `tests/recruiting-rag.test.ts` asserts `/under 150 words/` — update to `/under 90 words/`. All other suites stay green unchanged (57 tests baseline).
+- Add a unit test for the new `buildCachedSystemMessage` helper in `tests/chat-messages.test.ts`.
 - Manual (dev server): send a recruiting question and confirm (a) replies are visibly shorter, (b) decline/refusal paths still fire correctly (Jane-background, harmful, off-topic), (c) token usage shows a cache read on turn 2+.
 
 ## Out of scope (YAGNI)
