@@ -38,3 +38,13 @@ export function addCacheBreakpointToLastAssistantMessage(
   }
   return result
 }
+
+export function buildCachedSystemMessage(systemPrompt: string): ModelMessage {
+  return {
+    role: 'system',
+    content: systemPrompt,
+    providerOptions: {
+      anthropic: { cacheControl: { type: 'ephemeral' } },
+    },
+  }
+}

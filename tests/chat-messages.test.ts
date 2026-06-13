@@ -6,6 +6,7 @@ import type { ModelMessage } from 'ai'
 import {
   addCacheBreakpointToLastAssistantMessage,
   appendContextToLatestUserMessage,
+  buildCachedSystemMessage,
 } from '@/lib/recruiting-rag/chat-messages'
 
 const CONTEXT_BLOCK = '<approved_retrieved_context>\nGuidance\n</approved_retrieved_context>'
@@ -115,5 +116,17 @@ describe('addCacheBreakpointToLastAssistantMessage', () => {
     addCacheBreakpointToLastAssistantMessage(messages)
 
     assert.equal(messages[0].providerOptions, undefined)
+  })
+})
+
+describe('buildCachedSystemMessage', () => {
+  it('returns a system message carrying the anthropic ephemeral cache breakpoint', () => {
+    const message = buildCachedSystemMessage('SYSTEM PROMPT')
+
+    assert.equal(message.role, 'system')
+    assert.equal(message.content, 'SYSTEM PROMPT')
+    assert.deepEqual(message.providerOptions, {
+      anthropic: { cacheControl: { type: 'ephemeral' } },
+    })
   })
 })
