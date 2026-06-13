@@ -129,8 +129,7 @@ function scoreChunk(queryTokens: Set<string>, chunk: ApprovedChunk): number {
     if (chunkTokens.has(token)) matches += 1
   }
 
-  const profileBoost = queryTokens.has('jane') && chunk.topic === 'jane_profile' ? 2 : 0
-  return matches / queryTokens.size + profileBoost
+  return matches / queryTokens.size
 }
 
 function truncateRetrievedText(text: string, maxChars = DEFAULT_RETRIEVED_TEXT_MAX_CHARS): string {

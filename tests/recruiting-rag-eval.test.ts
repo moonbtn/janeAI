@@ -31,34 +31,4 @@ describe('offline recruiting RAG evaluation', () => {
     assert.equal(results.every((result) => result.passed), true)
   })
 
-  it('retrieves Jane profile facts for personal Jane questions', () => {
-    const chunks = loadDefaultApprovedChunks()
-
-    const [education] = evaluateRetrievalCases({
-      chunks,
-      cases: [
-        {
-          id: 'jane-education',
-          question: 'Jane học ở đâu?',
-          expectedTopics: ['jane_profile'],
-        },
-      ],
-      topK: 3,
-    })
-
-    const [favoriteFood] = evaluateRetrievalCases({
-      chunks,
-      cases: [
-        {
-          id: 'jane-favorite-food',
-          question: 'Jane thích ăn gì?',
-          expectedTopics: ['jane_profile'],
-        },
-      ],
-      topK: 3,
-    })
-
-    assert.equal(education.passed, true)
-    assert.equal(favoriteFood.passed, true)
-  })
 })

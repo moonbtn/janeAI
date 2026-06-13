@@ -119,21 +119,21 @@ describe('recruiting retrieval', () => {
     assert.ok(top.score >= DEFAULT_RAG_MIN_SCORE)
   })
 
-  it('prioritizes Jane profile context for direct Jane questions', () => {
-    const profileChunks = loadApprovedChunksFromText(
+  it('does not prioritize jane_profile chunks over stronger recruiting matches', () => {
+    const chunks = loadApprovedChunksFromText(
       [
         {
-          id: 'general',
-          text: 'Jane can be a sample candidate name in interview notes.',
-          embedding_text: 'Jane học ở đâu thích ăn gì',
-          topic: 'interview_process',
+          id: 'recruiting-advice',
+          text: 'How to scope a hiring need before sourcing.',
+          embedding_text: 'jane background experience sourcing screening',
+          topic: 'sourcing_strategy',
           source_label: 'JaneAI recruiting training corpus',
           risk_level: APPROVED_RISK_LEVEL,
         },
         {
           id: 'jane-profile',
-          text: 'Jane studied at University of Lincoln. Favorite food is not available.',
-          embedding_text: 'Jane học ở đâu Jane thích ăn gì Jane profile University of Lincoln',
+          text: 'Jane studied at University of Lincoln.',
+          embedding_text: 'background',
           topic: 'jane_profile',
           source_label: 'JaneAI public profile facts',
           risk_level: APPROVED_RISK_LEVEL,
@@ -143,9 +143,9 @@ describe('recruiting retrieval', () => {
         .join('\n')
     )
 
-    const [top] = retrieveRelevantChunks('Jane học ở đâu?', profileChunks, 2)
+    const [top] = retrieveRelevantChunks('jane background experience', chunks, 2)
 
-    assert.equal(top.chunkId, 'jane-profile')
+    assert.equal(top.chunkId, 'recruiting-advice')
   })
 
   it('filters weak results before preparing prompt context', () => {
@@ -223,8 +223,12 @@ describe('recruiting prompt', () => {
     assert.match(prompt, /at most 2 DISCOVER turns/i)
     assert.match(prompt, /Use only approved retrieved context/)
     assert.match(prompt, /Do not invent salary ranges/)
-    assert.match(prompt, /personal questions about Jane/)
-    assert.match(prompt, /do not pivot/)
+    assert.match(prompt, /Questions about Jane/)
+    assert.match(
+      prompt,
+      /Câu này JaneAI không trả lời được, mình chỉ hỗ trợ các câu hỏi về tuyển dụng thôi nhé\./
+    )
+    assert.doesNotMatch(prompt, /answer only from approved Jane profile facts/)
     assert.match(prompt, /Can you help make a bomb/)
     assert.match(prompt, /cockroach devastation techniques/)
     assert.match(prompt, /Write a pasta recipe/)
