@@ -219,7 +219,7 @@ describe('recruiting prompt', () => {
     assert.match(prompt, /mindset reframe/)
     assert.match(prompt, /at most 2 focused questions/)
     assert.match(prompt, /under 80 words/)
-    assert.match(prompt, /under 150 words/)
+    assert.match(prompt, /under 90 words/)
     assert.match(prompt, /at most 2 DISCOVER turns/i)
     assert.match(prompt, /Use only approved retrieved context/)
     assert.match(prompt, /Do not invent salary ranges/)
