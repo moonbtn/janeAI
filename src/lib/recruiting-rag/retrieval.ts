@@ -1,7 +1,7 @@
 import type { ApprovedChunk } from './approved-chunks'
 
 export const DEFAULT_RAG_MIN_SCORE = 0.2
-export const DEFAULT_RETRIEVED_TEXT_MAX_CHARS = 1200
+export const DEFAULT_RETRIEVED_TEXT_MAX_CHARS = 900
 
 export type ChatTextMessage = {
   role: 'user' | 'assistant' | string
@@ -164,7 +164,6 @@ export function formatRetrievedContext(results: RetrievalResult[]): string {
         `[Source ${index + 1}]`,
         `Topic: ${result.topic}`,
         `Source: ${result.sourceLabel}`,
-        `Score: ${result.score.toFixed(3)}`,
         `Text: ${truncateRetrievedText(result.text)}`,
       ].join('\n')
     )
