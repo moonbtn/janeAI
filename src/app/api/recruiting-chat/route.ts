@@ -20,6 +20,7 @@ import {
 import {
   addCacheBreakpointToLastAssistantMessage,
   appendContextToLatestUserMessage,
+  buildCachedSystemMessage,
 } from '@/lib/recruiting-rag/chat-messages'
 import {
   buildRetrievalQuery,
@@ -160,10 +161,10 @@ export async function POST(request: Request) {
     )
 
     const retrievalQuery = buildRetrievalQuery(messages as ChatTextMessage[])
-    const retrievedResults = retrieveRelevantChunks(retrievalQuery, loadDefaultApprovedChunks(), 4)
+    const retrievedResults = retrieveRelevantChunks(retrievalQuery, loadDefaultApprovedChunks(), 3)
     const rag = prepareRagForChat(retrievedResults)
 
-    const modelMessages = addCacheBreakpointToLastAssistantMessage(
+    const conversationMessages = addCacheBreakpointToLastAssistantMessage(
       appendContextToLatestUserMessage(
         await convertToModelMessages(messages),
         buildRecruitingContextBlock({
@@ -173,11 +174,15 @@ export async function POST(request: Request) {
       )
     )
 
+    const modelMessages = [
+      buildCachedSystemMessage(buildRecruitingSystemPrompt()),
+      ...conversationMessages,
+    ]
+
     const result = streamText({
       model: getRecruitingChatLanguageModel(modelConfig),
-      system: buildRecruitingSystemPrompt(),
       messages: modelMessages,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 512,
       abortSignal: request.signal,
       onError({ error }) {
         console.error('Recruiting chat stream error:', error)
