@@ -21,8 +21,40 @@ try {
   // .env.local not present (e.g. in production)
 }
 
+const securityHeaders = [
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      // Next.js RSC + Clerk components need unsafe-inline; unsafe-eval needed in dev
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      // Clerk, Supabase, and any HTTPS API
+      "connect-src 'self' https: wss:",
+      // Clerk auth iframes + Google OAuth popup
+      "frame-src 'self' https:",
+      "worker-src 'self' blob:",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; '),
+  },
+];
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
