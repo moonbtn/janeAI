@@ -30,9 +30,9 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      // Next.js RSC + Clerk components need unsafe-inline; unsafe-eval needed in dev
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // Clerk loads JS from CDN; Next.js needs unsafe-inline + unsafe-eval for RSC
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+      "style-src 'self' 'unsafe-inline' https:",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com",
       // Clerk, Supabase, and any HTTPS API
