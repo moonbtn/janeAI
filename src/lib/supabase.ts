@@ -3,7 +3,23 @@ import { createClient } from '@supabase/supabase-js'
 let _client: ReturnType<typeof createClient> | null = null
 let _adminClient: ReturnType<typeof createClient> | null = null
 
+let _warnedRemoteDb = false
+function warnIfLocalUsingRemoteDb() {
+  if (_warnedRemoteDb) return
+  if (process.env.NODE_ENV !== 'development') return
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const isLocal = url.includes('localhost') || url.includes('127.0.0.1')
+  if (url && !isLocal) {
+    _warnedRemoteDb = true
+    console.warn(
+      `\n⚠️  LOCAL DEV đang dùng Supabase REMOTE (${url}).\n` +
+      `    Mọi thao tác GHI sẽ đụng DB thật. Cẩn thận khi test/xoá.\n`,
+    )
+  }
+}
+
 export function getSupabase() {
+  warnIfLocalUsingRemoteDb()
   if (!_client) {
     _client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +70,7 @@ export type QuestionnaireAnswer = {
 }
 
 export function getSupabaseAdmin() {
+  warnIfLocalUsingRemoteDb()
   if (!_adminClient) {
     _adminClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
