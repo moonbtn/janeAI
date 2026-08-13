@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:unit": "node --import tsx --test tests/**/*.test.ts",
-    "rag:evaluate": "node --import tsx scripts/evaluate-recruiting-rag.ts"
+    "rag:evaluate": "node --import tsx scripts/evaluate-recruiting-rag.ts",
+    "health": "node --import tsx scripts/health.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",
