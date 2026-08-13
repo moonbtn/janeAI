@@ -7,6 +7,7 @@ import { auth } from '@clerk/nextjs/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
 import type { ContentStyle, ChannelRecommendation } from '@/lib/supabase'
+import { callAnthropicWithFallback } from '@/lib/ai/models'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -383,8 +384,7 @@ export async function POST(req: NextRequest) {
 
     // MODE: recommend — chỉ classify + rank kênh
     if (mode === 'recommend') {
-      const message = await client.messages.create({
-        model: 'claude-opus-4-7',
+      const message = await callAnthropicWithFallback(client, 'heavy', {
         max_tokens: 800,
         messages: [{ role: 'user', content: buildRecommendPrompt(jd.job_title, jd.generated_jd, questionnaireContext) }],
       })
@@ -432,8 +432,7 @@ export async function POST(req: NextRequest) {
           ? pickStoryAngle(jobType, seniority, questionnaireContext)
           : undefined
 
-      const message = await client.messages.create({
-        model: 'claude-opus-4-7',
+      const message = await callAnthropicWithFallback(client, 'heavy', {
         max_tokens: 1500,
         messages: [{
           role: 'user',
@@ -472,8 +471,7 @@ export async function POST(req: NextRequest) {
       let replyStarters: string[] = []
       if (channel === 'threads') {
         try {
-          const replyMsg = await client.messages.create({
-            model: 'claude-haiku-4-5-20251001',
+          const replyMsg = await callAnthropicWithFallback(client, 'fast', {
             max_tokens: 400,
             messages: [{ role: 'user', content: buildReplyStarterPrompt(content) }],
           })
