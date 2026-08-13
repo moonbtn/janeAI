@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Question } from '@/lib/supabase'
+import { callAnthropicWithFallback } from '@/lib/ai/models'
 
 export const dynamic = 'force-dynamic'
 
@@ -173,8 +174,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Thiếu nội dung JD' }, { status: 400 })
     }
 
-    const message = await client.messages.create({
-      model: 'claude-opus-4-7',
+    const message = await callAnthropicWithFallback(client, 'heavy', {
       max_tokens: 6000,
       messages: [
         {
