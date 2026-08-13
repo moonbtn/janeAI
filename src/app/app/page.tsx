@@ -43,6 +43,7 @@ export default function Home() {
   const [reminders, setReminders] = useState<{ jd_history_id: string; job_title: string }[]>([])
   const [dismissedReminders, setDismissedReminders] = useState<Set<string>>(new Set())
   const [resendingFor, setResendingFor] = useState<string | null>(null)
+  const [remindersExpanded, setRemindersExpanded] = useState(false)
 
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
@@ -275,45 +276,74 @@ export default function Home() {
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
+  const visibleReminders = reminders.filter((r) => !dismissedReminders.has(r.jd_history_id))
+
   return (
     <>
     <div className="min-h-screen bg-gray-50">
-      {/* 30-day reminder banners */}
-      {reminders.filter((r) => !dismissedReminders.has(r.jd_history_id)).length > 0 && (
+      {/* 30-day follow-up reminders — collapsed summary badge, expands on click */}
+      {visibleReminders.length > 0 && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 flex flex-col gap-2">
-          {reminders
-            .filter((r) => !dismissedReminders.has(r.jd_history_id))
-            .map((r) => (
-              <div key={r.jd_history_id} className="bg-white border border-amber-300 rounded-xl shadow-lg px-4 py-3 flex flex-col gap-2">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-semibold text-gray-800">
-                    <span className="text-amber-500 mr-1">⏰</span>
-                    <span className="font-bold">{r.job_title}</span> — đã 1 tháng rồi, tuyển được chưa?
-                  </p>
-                  <button
-                    onClick={() => setDismissedReminders((prev) => new Set([...prev, r.jd_history_id]))}
-                    className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none"
-                  >
-                    ×
-                  </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setRemindersExpanded((v) => !v)}
+              className="flex-1 flex items-center justify-between gap-2 bg-white border border-amber-300 rounded-xl shadow-lg px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-amber-50"
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-amber-500">⏰</span>
+                {visibleReminders.length} vị trí cần theo dõi
+              </span>
+              <span className="text-xs font-medium text-gray-400">
+                {remindersExpanded ? 'Thu gọn ▴' : 'Xem ▾'}
+              </span>
+            </button>
+            <button
+              onClick={() =>
+                setDismissedReminders(
+                  (prev) => new Set([...prev, ...visibleReminders.map((r) => r.jd_history_id)])
+                )
+              }
+              className="shrink-0 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-500 shadow-lg hover:text-gray-700"
+            >
+              Ẩn tất cả
+            </button>
+          </div>
+
+          {remindersExpanded && (
+            <div className="flex flex-col gap-2 max-h-[70vh] overflow-y-auto pb-1">
+              {visibleReminders.map((r) => (
+                <div key={r.jd_history_id} className="bg-white border border-amber-300 rounded-xl shadow-lg px-4 py-3 flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-gray-800">
+                      <span className="text-amber-500 mr-1">⏰</span>
+                      <span className="font-bold">{r.job_title}</span> — đã 1 tháng rồi, tuyển được chưa?
+                    </p>
+                    <button
+                      onClick={() => setDismissedReminders((prev) => new Set([...prev, r.jd_history_id]))}
+                      className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleMarkHired(r.jd_history_id)}
+                      className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"
+                    >
+                      ✓ Đã tuyển xong
+                    </button>
+                    <button
+                      onClick={() => handleResendQuestionnaire(r.jd_history_id)}
+                      disabled={resendingFor === r.jd_history_id}
+                      className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {resendingFor === r.jd_history_id ? 'Đang tạo...' : '↻ Gửi bảng hỏi mới'}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleMarkHired(r.jd_history_id)}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"
-                  >
-                    ✓ Đã tuyển xong
-                  </button>
-                  <button
-                    onClick={() => handleResendQuestionnaire(r.jd_history_id)}
-                    disabled={resendingFor === r.jd_history_id}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {resendingFor === r.jd_history_id ? 'Đang tạo...' : '↻ Gửi bảng hỏi mới'}
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
         </div>
       )}
 
