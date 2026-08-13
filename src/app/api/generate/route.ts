@@ -6,6 +6,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { callAnthropicWithFallback } from '@/lib/ai/models'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -30,8 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Thiếu thông tin' }, { status: 400 })
     }
 
-    const stream = await client.messages.stream({
-      model: 'claude-opus-4-7',
+    const message = await callAnthropicWithFallback(client, 'heavy', {
       max_tokens: 2000,
       messages: [
         {
@@ -57,8 +57,8 @@ Viết tự nhiên, chuyên nghiệp, hấp dẫn ứng viên. Không bịa thô
       ],
     })
 
-    const message = await stream.finalMessage()
-    const generatedJd = message.content[0].type === 'text' ? message.content[0].text : ''
+    const firstBlock = message.content[0]
+    const generatedJd = firstBlock?.type === 'text' ? firstBlock.text : ''
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: inserted, error } = await (getSupabaseAdmin() as any)
