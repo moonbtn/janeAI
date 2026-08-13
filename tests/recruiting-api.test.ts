@@ -9,6 +9,7 @@ import {
   normalizeLeadPayload,
 } from '@/lib/recruiting-rag/persistence'
 import { checkRateLimitSafely, getRecruitingChatModelConfig } from '@/lib/recruiting-rag/runtime'
+import { getModel } from '@/lib/ai/models'
 
 describe('recruiting chat persistence payloads', () => {
   it('builds conversation insert payloads with Clerk email when available', () => {
@@ -164,7 +165,7 @@ describe('recruiting chat runtime guards', () => {
   it('defaults the recruiting chat to Anthropic for deployment safety', () => {
     assert.deepEqual(getRecruitingChatModelConfig({} as NodeJS.ProcessEnv), {
       provider: 'anthropic',
-      modelId: 'claude-opus-4-7',
+      modelId: getModel('heavy'),
       requiredEnvName: 'ANTHROPIC_API_KEY',
       hasApiKey: false,
     })

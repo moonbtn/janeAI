@@ -2,6 +2,7 @@ import { anthropic } from '@ai-sdk/anthropic'
 import { openai } from '@ai-sdk/openai'
 
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getModel } from '@/lib/ai/models'
 
 type RateLimitResult = {
   allowed: boolean
@@ -11,7 +12,7 @@ type RateLimitResult = {
 type RateLimitChecker = (userId: string, endpoint: string) => Promise<RateLimitResult>
 type RecruitingChatProvider = 'anthropic' | 'openai'
 
-const ANTHROPIC_DEFAULT_MODEL = 'claude-opus-4-7'
+const ANTHROPIC_DEFAULT_MODEL = getModel('heavy')
 const OPENAI_DEFAULT_MODEL = 'gpt-5.4-mini'
 
 function hasEnvValue(env: NodeJS.ProcessEnv, key: string) {
