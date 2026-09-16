@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getQuestionnaireById, getLatestAnswerForQuestionnaire } from '@/lib/db/questionnaires'
 
 export async function GET(
   _req: NextRequest,
@@ -9,25 +9,13 @@ export async function GET(
 ) {
   const { id } = await params
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q, error: qError } = await (getSupabaseAdmin() as any)
-    .from('questionnaires')
-    .select('id, questions, prefilled_answers, status, jd_history_id')
-    .eq('id', id)
-    .single()
+  const q = await getQuestionnaireById(id)
 
-  if (qError || !q) {
+  if (!q) {
     return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ans } = await (getSupabaseAdmin() as any)
-    .from('questionnaire_answers')
-    .select('answers, submitted_at')
-    .eq('questionnaire_id', id)
-    .order('submitted_at', { ascending: false })
-    .limit(1)
-    .single()
+  const ans = await getLatestAnswerForQuestionnaire(id)
 
   return NextResponse.json({
     questionnaire: q,

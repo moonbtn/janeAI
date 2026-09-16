@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getQuestionnaireByToken } from '@/lib/db/questionnaires'
 
 export async function GET(
   _req: NextRequest,
@@ -9,18 +9,13 @@ export async function GET(
 ) {
   const { token } = await params
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (getSupabaseAdmin() as any)
-    .from('questionnaires')
-    .select('id, questions, prefilled_answers, status, expires_at, language, is_resend')
-    .eq('token', token)
-    .single()
+  const data = await getQuestionnaireByToken(token)
 
-  if (error || !data) {
+  if (!data) {
     return NextResponse.json({ error: 'Không tìm thấy bảng hỏi' }, { status: 404 })
   }
 
-  if (new Date(data.expires_at) < new Date()) {
+  if (data.expires_at && new Date(data.expires_at) < new Date()) {
     return NextResponse.json({ error: 'Link đã hết hạn' }, { status: 410 })
   }
 

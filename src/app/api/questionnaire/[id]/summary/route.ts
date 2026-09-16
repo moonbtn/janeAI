@@ -2,8 +2,9 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
-import type { Question } from '@/lib/supabase'
+import { getQuestionnaireById, getLatestAnswerForQuestionnaire } from '@/lib/db/questionnaires'
+import { getJdTitleById } from '@/lib/db/jd-history'
+import type { Question } from '@/lib/db/types'
 
 export type QuestionnaireSummaryData = {
   jobTitle: string
@@ -22,35 +23,16 @@ export async function GET(
 
   const { id } = await params
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: q, error: qError } = await (getSupabaseAdmin() as any)
-    .from('questionnaires')
-    .select('id, questions, token, jd_history_id')
-    .eq('id', id)
-    .single()
+  const q = await getQuestionnaireById(id)
+  if (!q) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  if (qError || !q) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: jd } = await (getSupabaseAdmin() as any)
-    .from('jd_history')
-    .select('job_title')
-    .eq('id', q.jd_history_id)
-    .single()
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ans } = await (getSupabaseAdmin() as any)
-    .from('questionnaire_answers')
-    .select('answers, submitted_at')
-    .eq('questionnaire_id', id)
-    .order('submitted_at', { ascending: false })
-    .limit(1)
-    .single()
+  const jobTitle = q.jd_history_id ? await getJdTitleById(q.jd_history_id) : null
+  const ans = await getLatestAnswerForQuestionnaire(id)
 
   if (!ans) return NextResponse.json({ error: 'No answers yet' }, { status: 404 })
 
   return NextResponse.json({
-    jobTitle: jd?.job_title ?? 'Không rõ vị trí',
+    jobTitle: jobTitle ?? 'Không rõ vị trí',
     submittedAt: ans.submitted_at,
     questions: q.questions,
     answers: ans.answers,

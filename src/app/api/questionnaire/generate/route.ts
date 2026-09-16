@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
-import { Question } from '@/lib/supabase'
+import { insertJdHistory } from '@/lib/db/jd-history'
+import { insertQuestionnaire } from '@/lib/db/questionnaires'
+import type { Question } from '@/lib/db/types'
 import { callAnthropicWithFallback } from '@/lib/ai/models'
 
 export const dynamic = 'force-dynamic'
@@ -200,42 +201,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI trả về dữ liệu không hợp lệ' }, { status: 502 })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: jdRecord, error: jdError } = await (getSupabaseAdmin() as any)
-      .from('jd_history')
-      .insert({
+    let jdRecord: { id: string }
+    try {
+      jdRecord = await insertJdHistory({
         job_title: providedTitle || parsed.jobTitle || 'Không rõ vị trí',
         raw_input: jdText,
         generated_jd: jdText,
         user_id: userId,
       })
-      .select('id')
-      .maybeSingle()
-
-    if (jdError) {
-      console.error('Supabase jd_history error:', jdError)
+    } catch (err) {
+      console.error('DB jd_history error:', err)
       return NextResponse.json({ error: 'Lỗi lưu JD' }, { status: 500 })
     }
 
-    if (!jdRecord?.id) {
-      console.error('jd_history insert returned no id')
-      return NextResponse.json({ error: 'Lỗi lưu JD' }, { status: 500 })
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (getSupabaseAdmin() as any)
-      .from('questionnaires')
-      .insert({
+    let data: { id: string; token: string }
+    try {
+      data = await insertQuestionnaire({
         jd_history_id: jdRecord.id,
         questions: parsed.questions,
         prefilled_answers: parsed.prefilled_answers,
         language,
       })
-      .select('id, token')
-      .maybeSingle()
-
-    if (error || !data) {
-      console.error('Supabase questionnaire error:', error)
+    } catch (err) {
+      console.error('DB questionnaire error:', err)
       return NextResponse.json({ error: 'Lỗi lưu bảng hỏi' }, { status: 500 })
     }
 
