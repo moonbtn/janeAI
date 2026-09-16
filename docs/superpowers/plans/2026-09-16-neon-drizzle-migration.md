@@ -6,7 +6,7 @@
 
 **Architecture:** Introduce `src/lib/db/` as a small data-access layer: `schema.ts` (Drizzle table defs), `types.ts` (shared row/domain types, replacing `src/lib/supabase.ts`'s exports), `client.ts` (lazy Drizzle instance over `@neondatabase/serverless`), and one module per table-group (`jd-history.ts`, `questionnaires.ts`, `post-campaigns.ts`, `connected-accounts.ts`, `feedback.ts`, `api-usage.ts`) exposing small typed functions. Existing files that already encapsulate DB access (`src/lib/rate-limit.ts`, `src/lib/recruiting-rag/db.ts`, `src/lib/health/check.ts`) are rewritten in place, keeping their exported function signatures identical so their callers outside this plan's scope (`recruiting-chat`, `recruiting-leads` routes) need no changes. All 24 Next.js route/page files that currently call `getSupabaseAdmin()` directly are rewired to import from the new modules instead.
 
-**Tech Stack:** `drizzle-orm` + `drizzle-kit` + `@neondatabase/serverless` (HTTP driver, `drizzle-orm/neon-http`) — chosen over a persistent-connection driver because Vercel serverless functions can spin up many concurrent invocations and an HTTP-based driver has no connection-pool exhaustion risk. Existing test runner: Node's built-in `node:test` + `node:assert/strict` via `node --import tsx --test` (already configured as `npm run test:unit`); DB-touching tests run against a dedicated Neon **dev branch** (never against the prod branch) via a separate `TEST_DATABASE_URL` env var.
+**Tech Stack:** `drizzle-orm` + `drizzle-kit` + `@neondatabase/serverless`. **Update after implementing Task 4:** started with the HTTP driver (`drizzle-orm/neon-http`) as planned below, but it turned out to have **zero transaction support** (`Error: No transactions support in neon-http driver`) — confirmed by actually running the transaction test in Task 4 against it. Since two writes in this plan need real atomicity (Task 6's questionnaire submit, Task 10's recruiting chat message save), the client uses `drizzle-orm/neon-serverless` (WebSocket-based `Pool`) instead. This is still safe per-invocation in Vercel serverless functions because every connection string here already points at Neon's pooled endpoint (the `-pooler` host) — the same thing that made the HTTP driver safe also makes a fresh `Pool` per invocation safe. Existing test runner: Node's built-in `node:test` + `node:assert/strict` via `node --env-file=.env.local --import tsx --test` (updated from the original `node --import tsx --test` so `TEST_DATABASE_URL` loads automatically — see `package.json`); DB-touching tests run against a dedicated Neon **dev branch** (never against the prod branch) via that `TEST_DATABASE_URL` env var.
 
 **Column naming decision:** Drizzle schema columns use **snake_case JS property names** (`job_title`, not `jobTitle`) even though Drizzle's own style guide prefers camelCase. This is deliberate: the live schema's column names are already snake_case, and 6 additional files outside the 24-file query-writing scope (`src/app/app/page.tsx`, `src/app/q/[token]/page.tsx`, `src/components/ChannelPostBlock.tsx`, `src/components/PostingCard.tsx`, `src/components/QuestionnaireSummary.tsx`, `src/components/QuestionnaireWizard.tsx`) import types like `JdHistory`/`Question`/`PostCampaign` and read their fields as snake_case throughout the UI. Renaming to camelCase would cascade far beyond this migration's actual goal (getting off Supabase) for zero benefit. Task 13 updates only those 6 files' *import path*, not their field access.
 
@@ -397,8 +397,8 @@ test('createDb can run a trivial query against TEST_DATABASE_URL', async () => {
   const url = process.env.TEST_DATABASE_URL
   assert.ok(url, 'TEST_DATABASE_URL must be set to run db tests')
   const db = createDb(url!)
-  const rows = await db.execute(sql`select 1 as one`)
-  assert.equal(Number(rows[0].one), 1)
+  const result = await db.execute(sql`select 1 as one`)
+  assert.equal(Number(result.rows[0].one), 1)
 })
 
 test('createDb supports a transaction that commits both statements', async () => {
@@ -410,8 +410,8 @@ test('createDb supports a transaction that commits both statements', async () =>
       await tx.execute(sql.raw(`insert into ${tableName} (id) values (1)`))
       await tx.execute(sql.raw(`insert into ${tableName} (id) values (2)`))
     })
-    const rows = await db.execute(sql.raw(`select count(*) as c from ${tableName}`))
-    assert.equal(Number(rows[0].c), 2)
+    const result = await db.execute(sql.raw(`select count(*) as c from ${tableName}`))
+    assert.equal(Number(result.rows[0].c), 2)
   } finally {
     await db.execute(sql.raw(`drop table ${tableName}`))
   }
@@ -425,14 +425,21 @@ Expected: FAIL — `Cannot find module '@/lib/db/client'`.
 
 - [ ] **Step 3: Write `src/lib/db/client.ts`**
 
+**Already confirmed while writing this plan's own implementation** (see the Tech Stack update at the top): `drizzle-orm/neon-http` has no transaction support at all, so go straight to `neon-serverless` — don't waste a round-trip trying `neon-http` first.
+
 ```ts
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import { drizzle } from 'drizzle-orm/neon-serverless'
 import * as schema from './schema'
 
+// neon-http (plain HTTP, one query per request) doesn't support transactions
+// at all ("No transactions support in neon-http driver") — two of our writes
+// need real atomicity (questionnaire submit, recruiting chat message save),
+// so this uses neon-serverless (WebSocket-based Pool) instead. It still works
+// fine per-request in serverless functions because our connection strings
+// point at Neon's pooled endpoint (the "-pooler" host), which is exactly what
+// that endpoint is for.
 export function createDb(connectionString: string) {
-  const sql = neon(connectionString)
-  return drizzle(sql, { schema })
+  return drizzle(connectionString, { schema })
 }
 
 let _warned = false
@@ -464,14 +471,14 @@ export function getDb() {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm run test:unit`
-Expected: both tests in `tests/db-client.test.ts` PASS. If the transaction test fails specifically (not the connectivity one), see the note below before proceeding — it means `drizzle-orm/neon-http`'s transaction support doesn't behave as expected on the installed version, and Task 6 (which needs a real transaction) will need `drizzle-orm/neon-serverless` (WebSocket driver, full transaction support) instead — swap the import in this file from `neon-http` to `neon-serverless` and `neon` to `Pool` per that driver's README, re-run this test, and continue.
+Expected: both tests in `tests/db-client.test.ts` PASS (already verified against the real Neon dev branch while writing this plan).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/lib/db/client.ts tests/db-client.test.ts
+git add src/lib/db/client.ts tests/db-client.test.ts package.json
 git commit -m "$(cat <<'EOF'
-feat(db): add Drizzle client factory over Neon HTTP driver
+feat(db): add Drizzle client factory over Neon serverless Pool
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
@@ -1080,7 +1087,7 @@ Note: `and(...)` isn't actually needed here (every query filters on one column),
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `npm run test:unit`
-Expected: all 5 tests in `tests/db-questionnaires.test.ts` PASS. If the transaction test fails, revisit Task 4 Step 4's note about swapping to `drizzle-orm/neon-serverless`.
+Expected: all 5 tests in `tests/db-questionnaires.test.ts` PASS. The client already uses `drizzle-orm/neon-serverless` (Task 4), so the transaction inside `insertQuestionnaireAnswerAndMarkAnswered` works as-is.
 
 - [ ] **Step 5: Commit the module**
 
