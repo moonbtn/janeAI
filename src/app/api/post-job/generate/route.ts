@@ -4,9 +4,11 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getJdHistoryById } from '@/lib/db/jd-history'
+import { getLatestQuestionnaireForJd, getLatestAnswerForQuestionnaire } from '@/lib/db/questionnaires'
+import { upsertCampaignDraft } from '@/lib/db/post-campaigns'
 import { checkRateLimit } from '@/lib/rate-limit'
-import type { ContentStyle, ChannelRecommendation } from '@/lib/supabase'
+import type { ContentStyle, ChannelRecommendation } from '@/lib/db/types'
 import { callAnthropicWithFallback } from '@/lib/ai/models'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -102,28 +104,12 @@ function getCandidatePersona(jobType: string, seniority: string): CandidatePerso
 
 // Fetch questionnaire answers cho JD này
 async function fetchQuestionnaireContext(jdHistoryId: string): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = getSupabaseAdmin() as any
-
-  const { data: q } = await supabase
-    .from('questionnaires')
-    .select('id')
-    .eq('jd_history_id', jdHistoryId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
-
+  const q = await getLatestQuestionnaireForJd(jdHistoryId)
   if (!q) return ''
 
-  const { data: ans } = await supabase
-    .from('questionnaire_answers')
-    .select('answers')
-    .eq('questionnaire_id', q.id)
-    .single()
-
+  const ans = await getLatestAnswerForQuestionnaire(q.id)
   if (!ans?.answers) return ''
 
-  // Extract relevant fields từ answers
   const a = ans.answers as Record<string, unknown>
   const lines: string[] = []
 
@@ -368,15 +354,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Thiếu jd_history_id' }, { status: 400 })
     }
 
-    // Fetch JD (admin key — anon key blocked by RLS on jd_history)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: jd, error: jdError } = await (getSupabaseAdmin() as any)
-      .from('jd_history')
-      .select('job_title, generated_jd')
-      .eq('id', jd_history_id)
-      .single()
+    const jd = await getJdHistoryById(jd_history_id, {})
 
-    if (jdError || !jd) {
+    if (!jd) {
       return NextResponse.json({ error: 'Không tìm thấy JD' }, { status: 404 })
     }
 
@@ -451,19 +431,11 @@ export async function POST(req: NextRequest) {
 
       const content = message.content[0]?.type === 'text' ? message.content[0].text.trim() : ''
 
-      // Upsert campaign draft
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: campaign, error: upsertError } = await (getSupabaseAdmin() as any)
-        .from('post_campaigns')
-        .upsert(
-          { jd_history_id, channel, content, status: 'draft' },
-          { onConflict: 'jd_history_id,channel' }
-        )
-        .select()
-        .single()
-
-      if (upsertError) {
-        console.error('Upsert campaign error:', upsertError)
+      let campaign
+      try {
+        campaign = await upsertCampaignDraft({ jd_history_id, channel, content })
+      } catch (err) {
+        console.error('Upsert campaign error:', err)
         return NextResponse.json({ error: 'Lưu content thất bại' }, { status: 500 })
       }
 

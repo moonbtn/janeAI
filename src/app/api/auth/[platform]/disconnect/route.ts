@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { deleteConnectedAccount } from '@/lib/db/connected-accounts'
 
 export async function DELETE(
   _req: NextRequest,
@@ -15,16 +15,10 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabaseAdmin() as any)
-    .from('connected_accounts')
-    .delete()
-    .eq('user_id', userId)
-    .eq('platform', platform)
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  try {
+    await deleteConnectedAccount(userId, platform)
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'DB error' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true })
 }

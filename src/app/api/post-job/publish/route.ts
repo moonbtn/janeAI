@@ -2,7 +2,8 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getCampaignWithOwner, markCampaignStatus } from '@/lib/db/post-campaigns'
+import { getConnectedAccountForPublish } from '@/lib/db/connected-accounts'
 import { decrypt } from '@/lib/encryption'
 
 export async function POST(req: NextRequest) {
@@ -17,18 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Thiếu campaign_id' }, { status: 400 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: campaign, error: cErr } = await (getSupabaseAdmin() as any)
-    .from('post_campaigns')
-    .select('id, channel, content, status, jd_history!inner(user_id)')
-    .eq('id', campaign_id)
-    .single()
+  const campaign = await getCampaignWithOwner(campaign_id)
 
-  if (cErr || !campaign) {
+  if (!campaign) {
     return NextResponse.json({ error: 'Không tìm thấy campaign' }, { status: 404 })
   }
 
-  if (campaign.jd_history?.user_id !== userId) {
+  if (campaign.owner_user_id !== userId) {
     return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 })
   }
 
@@ -36,13 +32,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Đã đăng rồi' }, { status: 400 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: account } = await (getSupabaseAdmin() as any)
-    .from('connected_accounts')
-    .select('access_token, platform_user_id, facebook_pages, selected_page_id')
-    .eq('user_id', userId)
-    .eq('platform', campaign.channel)
-    .maybeSingle()
+  const account = await getConnectedAccountForPublish(userId, campaign.channel)
 
   if (!account) {
     return NextResponse.json({ error: 'Chưa kết nối tài khoản' }, { status: 400 })
@@ -53,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (campaign.channel === 'linkedin') {
-      platformPostId = await postToLinkedIn(token, account.platform_user_id, campaign.content)
+      platformPostId = await postToLinkedIn(token, account.platform_user_id ?? '', campaign.content)
     } else if (campaign.channel === 'facebook') {
       const pageToken = getPageToken(account)
       const pageId = account.selected_page_id
@@ -66,23 +56,14 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error('Publish error:', err)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (getSupabaseAdmin() as any)
-      .from('post_campaigns')
-      .update({ status: 'failed' })
-      .eq('id', campaign_id)
+    await markCampaignStatus(campaign_id, 'failed')
     return NextResponse.json({ error: 'Lỗi khi đăng lên platform' }, { status: 502 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (getSupabaseAdmin() as any)
-    .from('post_campaigns')
-    .update({
-      status: 'posted',
-      platform_post_id: platformPostId,
-      posted_at: new Date().toISOString(),
-    })
-    .eq('id', campaign_id)
+  await markCampaignStatus(campaign_id, 'posted', {
+    platform_post_id: platformPostId,
+    posted_at: new Date().toISOString(),
+  })
 
   return NextResponse.json({ ok: true, platform_post_id: platformPostId })
 }

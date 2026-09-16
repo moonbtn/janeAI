@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { upsertConnectedAccount } from '@/lib/db/connected-accounts'
 import { encrypt } from '@/lib/encryption'
 
 export async function GET(
@@ -71,17 +71,14 @@ async function handleLinkedIn(code: string, userId: string, appUrl: string) {
 
   const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (getSupabaseAdmin() as any)
-    .from('connected_accounts')
-    .upsert({
-      user_id: userId,
-      platform: 'linkedin',
-      access_token: encrypt(tokenData.access_token),
-      token_expires_at: expiresAt,
-      platform_user_id: profile.sub,
-      platform_user_name: profile.name,
-    }, { onConflict: 'user_id,platform' })
+  await upsertConnectedAccount({
+    user_id: userId,
+    platform: 'linkedin',
+    access_token: encrypt(tokenData.access_token),
+    token_expires_at: expiresAt,
+    platform_user_id: profile.sub,
+    platform_user_name: profile.name,
+  })
 }
 
 async function handleFacebook(code: string, userId: string, appUrl: string) {
@@ -122,21 +119,18 @@ async function handleFacebook(code: string, userId: string, appUrl: string) {
 
   const expiresAt = new Date(Date.now() + (longData.expires_in ?? 5184000) * 1000).toISOString()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (getSupabaseAdmin() as any)
-    .from('connected_accounts')
-    .upsert({
-      user_id: userId,
-      platform: 'facebook',
-      access_token: encrypt(longData.access_token),
-      token_expires_at: expiresAt,
-      platform_user_id: me.id,
-      platform_user_name: me.name,
-      facebook_pages: pages.map(p => ({
-        id: p.id,
-        name: p.name,
-        access_token: encrypt(p.access_token),
-      })),
-      selected_page_id: pages[0]?.id ?? null,
-    }, { onConflict: 'user_id,platform' })
+  await upsertConnectedAccount({
+    user_id: userId,
+    platform: 'facebook',
+    access_token: encrypt(longData.access_token),
+    token_expires_at: expiresAt,
+    platform_user_id: me.id,
+    platform_user_name: me.name,
+    facebook_pages: pages.map(p => ({
+      id: p.id,
+      name: p.name,
+      access_token: encrypt(p.access_token),
+    })),
+    selected_page_id: pages[0]?.id ?? null,
+  })
 }
