@@ -4,7 +4,7 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { insertJdHistory } from '@/lib/db/jd-history'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { callAnthropicWithFallback } from '@/lib/ai/models'
 
@@ -60,23 +60,20 @@ Viết tự nhiên, chuyên nghiệp, hấp dẫn ứng viên. Không bịa thô
     const firstBlock = message.content[0]
     const generatedJd = firstBlock?.type === 'text' ? firstBlock.text : ''
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: inserted, error } = await (getSupabaseAdmin() as any)
-      .from('jd_history')
-      .insert({
+    let jdHistoryId: string | null = null
+    try {
+      const inserted = await insertJdHistory({
         job_title: jobTitle,
         raw_input: rawInput,
         generated_jd: generatedJd,
         user_id: userId,
       })
-      .select('id')
-      .maybeSingle()
-
-    if (error) {
-      console.error('Supabase error:', error)
+      jdHistoryId = inserted.id
+    } catch (err) {
+      console.error('DB error inserting jd_history:', err)
     }
 
-    return NextResponse.json({ generatedJd, jdHistoryId: inserted?.id ?? null })
+    return NextResponse.json({ generatedJd, jdHistoryId })
   } catch (error) {
     console.error('Generate error:', error)
     return NextResponse.json({ error: 'Có lỗi xảy ra, thử lại nhé!' }, { status: 500 })

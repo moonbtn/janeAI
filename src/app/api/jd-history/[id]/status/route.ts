@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { updateJdHistoryStatus } from '@/lib/db/jd-history'
 
 export async function PATCH(
   req: NextRequest,
@@ -18,14 +18,10 @@ export async function PATCH(
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabaseAdmin() as any)
-    .from('jd_history')
-    .update({ status })
-    .eq('id', id)
-    .eq('user_id', userId)
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json({ ok: true })
+  try {
+    await updateJdHistoryStatus(id, userId, status)
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'DB error' }, { status: 500 })
+  }
 }

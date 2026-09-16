@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { listJdHistory } from '@/lib/db/jd-history'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim()).filter(Boolean)
 
@@ -15,20 +15,10 @@ export async function GET() {
   const userEmails = user.emailAddresses.map((e) => e.emailAddress)
   const isAdmin = ADMIN_EMAILS.some((adminEmail) => userEmails.includes(adminEmail))
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (getSupabaseAdmin() as any)
-    .from('jd_history')
-    .select('id, job_title, created_at, user_id, status')
-    .order('created_at', { ascending: false })
-    .limit(100)
-
-  if (!isAdmin) query = query.eq('user_id', user.id)
-
-  const { data, error } = await query
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  try {
+    const data = await listJdHistory({ userId: isAdmin ? undefined : user.id, limit: 100 })
+    return NextResponse.json({ history: data })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'DB error' }, { status: 500 })
   }
-
-  return NextResponse.json({ history: data })
 }
