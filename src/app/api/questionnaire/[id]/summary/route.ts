@@ -33,7 +33,7 @@ export async function GET(
 
   return NextResponse.json({
     jobTitle: jobTitle ?? 'Không rõ vị trí',
-    submittedAt: ans.submitted_at,
+    submittedAt: (ans.submitted_at ?? new Date()).toISOString(),
     questions: q.questions,
     answers: ans.answers,
     token: q.token,

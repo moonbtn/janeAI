@@ -112,7 +112,7 @@ export default async function SummaryPrintPage({
             </div>
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            Submitted: {formatSubmittedAt(ans.submitted_at)}
+            Submitted: {formatSubmittedAt((ans.submitted_at ?? new Date()).toISOString())}
           </p>
         </div>
 

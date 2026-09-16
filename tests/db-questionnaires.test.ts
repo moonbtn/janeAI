@@ -10,7 +10,7 @@ import {
   getLatestAnswerForQuestionnaire,
 } from '@/lib/db/questionnaires'
 import { insertJdHistory } from '@/lib/db/jd-history'
-import { jdHistory, questionnaires, questionnaireAnswers } from '@/lib/db/schema'
+import { jdHistory } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 
 const testDb = createDb(process.env.TEST_DATABASE_URL!)
