@@ -4,7 +4,7 @@ const url = process.argv[2] || process.env.HEALTH_URL || 'https://ai.bebetterwit
 type CheckResult = { ok: boolean; ms: number; error?: string }
 type HealthReport = {
   overall: 'green' | 'red'
-  checks: Record<'supabase' | 'anthropic' | 'clerk', CheckResult>
+  checks: Record<'neon' | 'anthropic' | 'clerk', CheckResult>
   at: string
 }
 
@@ -19,7 +19,7 @@ async function main() {
     process.exit(1)
     return
   }
-  for (const k of ['supabase', 'anthropic', 'clerk'] as const) {
+  for (const k of ['neon', 'anthropic', 'clerk'] as const) {
     const c = report.checks[k]
     console.log(`${c.ok ? '🟢' : '🔴'} ${k.padEnd(10)} ${c.ok ? `${c.ms}ms` : c.error || 'lỗi'}`)
   }

@@ -1,12 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getDb } from '@/lib/db/client'
+import { jdHistory } from '@/lib/db/schema'
+import { sql } from 'drizzle-orm'
 import { getModel } from '@/lib/ai/models'
 
 export type CheckResult = { ok: boolean; ms: number; error?: string }
 
 export type HealthReport = {
   overall: 'green' | 'red'
-  checks: { supabase: CheckResult; anthropic: CheckResult; clerk: CheckResult }
+  checks: { neon: CheckResult; anthropic: CheckResult; clerk: CheckResult }
   at: string
 }
 
@@ -31,31 +33,31 @@ async function withTimeout(fn: CheckFn, timeoutMs: number): Promise<CheckResult>
 }
 
 export async function aggregateHealth(
-  checks: { supabase: CheckFn; anthropic: CheckFn; clerk: CheckFn },
+  checks: { neon: CheckFn; anthropic: CheckFn; clerk: CheckFn },
   opts: { timeoutMs?: number } = {},
 ): Promise<HealthReport> {
   const timeoutMs = opts.timeoutMs ?? 8000
-  const [supabase, anthropic, clerk] = await Promise.all([
-    withTimeout(checks.supabase, timeoutMs),
+  const [neon, anthropic, clerk] = await Promise.all([
+    withTimeout(checks.neon, timeoutMs),
     withTimeout(checks.anthropic, timeoutMs),
     withTimeout(checks.clerk, timeoutMs),
   ])
-  const all = [supabase, anthropic, clerk]
+  const all = [neon, anthropic, clerk]
   return {
     overall: all.every((c) => c.ok) ? 'green' : 'red',
-    checks: { supabase, anthropic, clerk },
+    checks: { neon, anthropic, clerk },
     at: new Date().toISOString(),
   }
 }
 
-async function checkSupabase(): Promise<CheckResult> {
+async function checkNeon(): Promise<CheckResult> {
   const start = Date.now()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabaseAdmin() as any)
-    .from('jd_history')
-    .select('id', { count: 'exact', head: true })
-  if (error) return { ok: false, ms: Date.now() - start, error: error.message }
-  return { ok: true, ms: Date.now() - start }
+  try {
+    await getDb().select({ count: sql<number>`count(*)`.mapWith(Number) }).from(jdHistory)
+    return { ok: true, ms: Date.now() - start }
+  } catch (err) {
+    return { ok: false, ms: Date.now() - start, error: err instanceof Error ? err.message : String(err) }
+  }
 }
 
 // Checks the PRIMARY model directly (no fallback) so retirement shows red here
@@ -90,5 +92,5 @@ async function checkClerk(): Promise<CheckResult> {
 }
 
 export function runHealthChecks(): Promise<HealthReport> {
-  return aggregateHealth({ supabase: checkSupabase, anthropic: checkAnthropic, clerk: checkClerk })
+  return aggregateHealth({ neon: checkNeon, anthropic: checkAnthropic, clerk: checkClerk })
 }

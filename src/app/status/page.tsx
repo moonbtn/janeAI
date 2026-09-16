@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 type CheckResult = { ok: boolean; ms: number; error?: string }
 type HealthReport = {
   overall: 'green' | 'red'
-  checks: Record<'supabase' | 'anthropic' | 'clerk', CheckResult>
+  checks: Record<'neon' | 'anthropic' | 'clerk', CheckResult>
   at: string
 }
 
@@ -36,7 +36,7 @@ export default function StatusPage() {
             {report.overall === 'green' ? '🟢 Tất cả bình thường' : '🔴 Có sự cố'}
           </p>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {(['supabase', 'anthropic', 'clerk'] as const).map((k) => (
+            {(['neon', 'anthropic', 'clerk'] as const).map((k) => (
               <li key={k} style={{ display: 'flex', justifyContent: 'space-between', border: '1px solid #eee', borderRadius: 10, padding: '10px 14px' }}>
                 <span>{dot(report.checks[k].ok)} {k}</span>
                 <span style={{ color: '#888', fontSize: 13 }}>
