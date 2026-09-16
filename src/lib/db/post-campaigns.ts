@@ -69,7 +69,7 @@ export async function markCampaignStatus(
     .set({
       status,
       platform_post_id: extra?.platform_post_id,
-      posted_at: extra?.posted_at ? new Date(extra.posted_at) : undefined,
+      posted_at: extra?.posted_at,
     })
     .where(eq(postCampaigns.id, campaignId))
 }

@@ -7,7 +7,7 @@ export const jdHistory = pgTable('jd_history', {
   job_title: text('job_title').notNull(),
   raw_input: text('raw_input').notNull(),
   generated_jd: text('generated_jd').notNull(),
-  created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  created_at: timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
   user_id: text('user_id'),
   status: text('status').notNull().default('active'),
 }, (table) => [
@@ -45,7 +45,7 @@ export const postCampaigns = pgTable('post_campaigns', {
   content: text('content').notNull(),
   status: text('status').notNull().default('draft'),
   platform_post_id: text('platform_post_id'),
-  posted_at: timestamp('posted_at', { withTimezone: true }),
+  posted_at: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
   created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   unique('post_campaigns_jd_history_id_channel_key').on(table.jd_history_id, table.channel),
