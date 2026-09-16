@@ -1,15 +1,8 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { listFeedback } from '@/lib/db/feedback'
 
 const ADMIN_EMAIL = 'jane.nguyen@onearw.com'
-
-type FeedbackRow = {
-  id: string
-  email: string | null
-  message: string
-  created_at: string
-}
 
 export default async function AdminPage() {
   const user = await currentUser()
@@ -17,13 +10,12 @@ export default async function AdminPage() {
 
   if (email !== ADMIN_EMAIL) redirect('/app')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (getSupabaseAdmin() as any)
-    .from('feedback')
-    .select('id, email, message, created_at')
-    .order('created_at', { ascending: false })
-
-  const feedbacks: FeedbackRow[] = error ? [] : data
+  let feedbacks: Awaited<ReturnType<typeof listFeedback>> = []
+  try {
+    feedbacks = await listFeedback()
+  } catch (err) {
+    console.error('listFeedback failed:', err)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

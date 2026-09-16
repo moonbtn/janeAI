@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { insertFeedback } from '@/lib/db/feedback'
 
 export async function POST(req: NextRequest) {
   const { message, email } = await req.json()
@@ -9,15 +9,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Thiếu nội dung feedback' }, { status: 400 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (getSupabaseAdmin() as any)
-    .from('feedback')
-    .insert({ user_id: email ?? 'anonymous', email: email ?? null, message: message.trim() })
-
-  if (error) {
-    console.error('Feedback insert error:', error)
+  try {
+    await insertFeedback({ user_id: email ?? 'anonymous', email: email ?? null, message: message.trim() })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('Feedback insert error:', err)
     return NextResponse.json({ error: 'Lỗi lưu feedback' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true })
 }
