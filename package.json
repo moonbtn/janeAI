@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:unit": "node --import tsx --test tests/**/*.test.ts",
+    "test:unit": "node --env-file=.env.local --import tsx --test tests/**/*.test.ts",
     "rag:evaluate": "node --import tsx scripts/evaluate-recruiting-rag.ts",
     "health": "node --import tsx scripts/health.ts",
     "db:generate": "drizzle-kit generate",
