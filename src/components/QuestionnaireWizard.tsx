@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Question } from '@/lib/supabase'
+import type { Question } from '@/lib/db/types'
 
 type Props = {
   questionnaireId: string

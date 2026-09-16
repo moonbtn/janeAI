@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import QuestionnaireWizard from '@/components/QuestionnaireWizard'
-import { Question } from '@/lib/supabase'
+import type { Question } from '@/lib/db/types'
 
 export default async function QuestionnairePage({
   params,

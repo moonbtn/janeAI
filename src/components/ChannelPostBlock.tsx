@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { ContentStyle, PostCampaign, ConnectedAccount } from '@/lib/supabase'
+import type { ContentStyle, PostCampaign, ConnectedAccount } from '@/lib/db/types'
 
 type Channel = 'linkedin' | 'facebook' | 'threads' | 'topcv'
 

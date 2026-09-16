@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ChannelPostBlock from './ChannelPostBlock'
-import type { ConnectedAccount, PostCampaign, ChannelRecommendation } from '@/lib/supabase'
+import type { ConnectedAccount, PostCampaign, ChannelRecommendation } from '@/lib/db/types'
 
 type Channel = 'linkedin' | 'facebook' | 'threads' | 'topcv'
 const CHANNELS: Channel[] = ['linkedin', 'facebook', 'threads', 'topcv']

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { UserButton } from '@clerk/nextjs'
-import { JdHistory } from '@/lib/supabase'
+import type { JdHistory } from '@/lib/db/types'
 import FeedbackWidget from '@/components/FeedbackWidget'
 import PostingCard from '@/components/PostingCard'
 import QuestionnaireSummary from '@/components/QuestionnaireSummary'

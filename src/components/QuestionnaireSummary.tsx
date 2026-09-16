@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import type { Question } from '@/lib/supabase'
+import type { Question } from '@/lib/db/types'
 
 export type QuestionnaireSummaryData = {
   jobTitle: string
