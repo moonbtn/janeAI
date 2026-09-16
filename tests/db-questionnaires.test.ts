@@ -90,3 +90,37 @@ test('getLatestAnswerForQuestionnaire returns null when no answer submitted yet'
     await cleanupJd(jd.id)
   }
 })
+
+test('getLatestQuestionnairesForJds returns the latest questionnaire per jd id', async () => {
+  const jdA = await insertJdHistory({ job_title: 'Batch A', raw_input: 'r', generated_jd: 'g', user_id: 'batch_user' })
+  const jdB = await insertJdHistory({ job_title: 'Batch B', raw_input: 'r', generated_jd: 'g', user_id: 'batch_user' })
+  try {
+    const qA1 = await insertQuestionnaire({ jd_history_id: jdA.id, questions: [], prefilled_answers: {}, language: 'vi' })
+    await new Promise((r) => setTimeout(r, 10))
+    const qA2 = await insertQuestionnaire({ jd_history_id: jdA.id, questions: [], prefilled_answers: {}, language: 'vi', is_resend: true })
+    const qB1 = await insertQuestionnaire({ jd_history_id: jdB.id, questions: [], prefilled_answers: {}, language: 'vi' })
+
+    const { getLatestQuestionnairesForJds } = await import('@/lib/db/questionnaires')
+    const map = await getLatestQuestionnairesForJds([jdA.id, jdB.id])
+    assert.equal(map.get(jdA.id)?.id, qA2.id)
+    assert.equal(map.get(jdB.id)?.id, qB1.id)
+    void qA1
+  } finally {
+    await cleanupJd(jdA.id)
+    await cleanupJd(jdB.id)
+  }
+})
+
+test('getLatestAnswersForQuestionnaires returns the latest answer per questionnaire id', async () => {
+  const jd = await insertJdHistory({ job_title: 'Batch Ans', raw_input: 'r', generated_jd: 'g', user_id: 'batch_user' })
+  try {
+    const q = await insertQuestionnaire({ jd_history_id: jd.id, questions: [], prefilled_answers: {}, language: 'vi' })
+    await insertQuestionnaireAnswerAndMarkAnswered(q.id, { a: 1 })
+
+    const { getLatestAnswersForQuestionnaires } = await import('@/lib/db/questionnaires')
+    const map = await getLatestAnswersForQuestionnaires([q.id])
+    assert.deepEqual(map.get(q.id)?.answers, { a: 1 })
+  } finally {
+    await cleanupJd(jd.id)
+  }
+})
